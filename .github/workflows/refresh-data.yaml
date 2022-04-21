@@ -21,6 +21,10 @@ jobs:
         with:
           use-public-rspm: true
 
+      - name: Install XQuartz on macOS
+        if: runner.os == 'macOS'
+        run: brew install xquartz --cask
+
       - name: Install packages
         run: Rscript -e 'install.packages(c("tidyverse", "tesseract", "magick", "here"), type = "binary")'
 
