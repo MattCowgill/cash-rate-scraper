@@ -26,6 +26,9 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install xquartz --cask
 
+      - name: Install vctrs
+        run: Rscript -e 'install.packages(c("vctrs"))'
+
       - name: Install packages
         run: Rscript -e 'install.packages(c("tidyverse", "tesseract", "magick", "here"))'
 
