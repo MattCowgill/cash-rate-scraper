@@ -22,6 +22,8 @@ jobs:
         with:
           use-public-rspm: true
 
+      - uses: r-lib/actions/setup-pandoc@v1
+
       - name: Install XQuartz on macOS
         if: runner.os == 'macOS'
         run: brew install xquartz --cask
@@ -34,6 +36,9 @@ jobs:
 
       - name: Get data
         run: Rscript -e 'source(here::here("R", "scrape_cash_rate.R"), echo = TRUE)'
+
+      - name: Render README
+        run: Rscript -e 'rmarkdown::render(here::here("README.Rmd"))'
 
       - name: Commit
         run: |
