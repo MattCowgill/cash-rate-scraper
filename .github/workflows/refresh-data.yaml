@@ -27,7 +27,7 @@ jobs:
         run: brew install xquartz --cask
 
       - name: Install packages
-        run: Rscript -e 'install.packages(c("tidyverse", "tesseract", "magick", "here"), type = "binary")'
+        run: Rscript -e 'install.packages(c("tidyverse", "tesseract", "magick", "here"))'
 
       - name: Get data
         run: Rscript -e 'source(here::here("R", "scrape_cash_rate.R"), echo = TRUE)'
