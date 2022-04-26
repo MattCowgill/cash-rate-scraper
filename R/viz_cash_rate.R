@@ -1,4 +1,7 @@
-suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+          })
 
 cash_rate <- readRDS(file.path("combined_data", "all_data.Rds"))
 
