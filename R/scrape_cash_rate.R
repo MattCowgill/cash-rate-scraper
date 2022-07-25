@@ -18,8 +18,8 @@ full_image <- image_read_pdf(pdf_path)
 table_image <- full_image |>
   magick::image_crop(geometry = geometry_area(width = 875 * 3.1,
                                               height = 40 * 3.1,
-                                              x_off = 175 * 3.1,
-                                              y_off = 640 * 3.1)) |>
+                                              x_off = 170 * 3.1,
+                                              y_off = 650 * 3.1)) |>
   image_quantize(colorspace = "gray") |>
   image_transparent(color = "white", fuzz = 48)
 
