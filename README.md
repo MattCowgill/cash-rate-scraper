@@ -25,6 +25,6 @@ Please fork/copy/modify as you see fit.
 
 # Graph\!
 
-    #> Warning: Removed 32 row(s) containing missing values (geom_path).
+    #> Warning: Removed 34 row(s) containing missing values (geom_path).
 
 ![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
