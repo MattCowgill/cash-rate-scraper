@@ -18,7 +18,7 @@ full_image <- image_read_pdf(pdf_path)
 table_image <- full_image |>
   magick::image_crop(geometry = geometry_area(width = 875 * 3.1,
                                               height = 40 * 3.1,
-                                              x_off = 175 * 3.1,
+                                              x_off = 174 * 3.1,
                                               y_off = 640 * 3.1)) |>
   image_quantize(colorspace = "gray") |>
   image_transparent(color = "white", fuzz = 48)
@@ -32,6 +32,8 @@ strings <- table_image |>
 strings <- strings[strings != ""]
 
 string_list <- map(strings, ~(str_split(.x, " ")[[1]]))
+
+string_list <- map(string_list, ~.x[.x != ""])
 
 # Create a tibble with our newly-scraped data
 new_data <- tibble(date = string_list[[1]],
