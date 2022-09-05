@@ -18,8 +18,8 @@ full_image <- image_read_pdf(pdf_path)
 table_image <- full_image |>
   magick::image_crop(geometry = geometry_area(width = 875 * 3.1,
                                               height = 40 * 3.1,
-                                              x_off = 174 * 3.1,
-                                              y_off = 640 * 3.1)) |>
+                                              x_off = 170 * 3.1,
+                                              y_off = 650 * 3.1)) |>
   image_quantize(colorspace = "gray") |>
   image_transparent(color = "white", fuzz = 48)
 
@@ -61,7 +61,12 @@ write_csv(new_data, file.path("daily_data",
 all_data <- file.path("daily_data") |>
   list.files(pattern = ".csv",
              full.names = TRUE) |>
-  read_csv(col_types = "DdD")
+  read_csv(col_types = "DdD") |>
+  filter(!scrape_date %in% c(as.Date("2022-08-06"),
+                             as.Date("2022-08-07"),
+                             as.Date("2022-08-08"))) |>
+  filter(!is.na(date),
+         !is.na(cash_rate))
 
 saveRDS(all_data,
         file = file.path("combined_data",
