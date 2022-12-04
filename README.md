@@ -13,7 +13,7 @@ CSV in `daily_data`. The file `combined_data/all_data.Rds` contains a
 dataframe that is the combination of all the daily data CSVs.
 
 Note that this script is brittle and was hacked together quickly. It
-will probably break\! I offer no assurance that this will continue to
+will probably break! I offer no assurance that this will continue to
 work, or that the data extracted using this script will be free of
 errors.
 
@@ -23,6 +23,6 @@ commit the results in this repo.
 
 Please fork/copy/modify as you see fit.
 
-# Graph\!
+# Graph!
 
-![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-2-3.png)<!-- -->

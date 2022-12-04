@@ -29,5 +29,9 @@ Please fork/copy/modify as you see fit.
 ```{r, echo = FALSE}
 source(file.path("R", "viz_cash_rate.R"))
 
-viz
+viz_1
+
+viz_2 
+
+viz_3
 ```
