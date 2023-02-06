@@ -8,6 +8,7 @@ cash_rate <- readRDS(file.path("combined_data", "all_data.Rds"))
 viz_1 <- cash_rate |>
   ggplot(aes(x = date, y = cash_rate, col = scrape_date, group = scrape_date)) +
   geom_line() +
+  scale_colour_date(date_labels = "%b '%y") +
   theme_minimal() +
   labs(subtitle = "Expected future cash rate",
        colour = "Expected\nas at:",
