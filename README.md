@@ -3,7 +3,7 @@
 
 # cash-rate-scraper
 
-This repository was created for demonstration purposes!
+This repository was created for demonstration purposes.
 
 It contains one script: `R/scrape_cash_rate.R`. This file downloads the
 [latest ASX cash rate implied yield curve
