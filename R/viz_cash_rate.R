@@ -1,6 +1,8 @@
 suppressPackageStartupMessages({
   library(dplyr)
   library(ggplot2)
+  library(lubridate)
+  library(ggrepel)
           })
 
 cash_rate <- readRDS(file.path("combined_data", "all_data.Rds"))
@@ -14,8 +16,35 @@ viz_1 <- cash_rate |>
        colour = "Expected\nas at:",
        x = "Date")
 
+cash_rate |>
+  filter(scrape_date == max(scrape_date[scrape_date != max(scrape_date)]))
 
 viz_2 <- cash_rate |>
+  filter(scrape_date %in% c(max(scrape_date),
+                            max(scrape_date) - weeks(1),
+                            max(scrape_date) - months(1),
+                            max(scrape_date) - years(1),
+                            max(scrape_date[scrape_date != max(scrape_date)]))) |>
+  distinct() |>
+  ggplot(aes(x = date, y = cash_rate,
+             col = factor(scrape_date),
+             group = scrape_date)) +
+  geom_line() +
+  geom_text_repel(data = ~group_by(., scrape_date) |>
+                    filter(date == max(date)),
+                  hjust = 0,
+                  nudge_x = 10,
+                  min.segment.length = 10000,
+                  aes(label = format(scrape_date, "%d %b %Y"))) +
+  scale_x_date(expand = expansion(c(0.05, 0.15))) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  labs(subtitle = "Expected future cash rate",
+       x = "Date")
+
+
+
+viz_3 <- cash_rate |>
   group_by(scrape_date) |>
   filter(cash_rate == max(cash_rate)) |>
   ggplot(aes(x = scrape_date, y = cash_rate)) +
@@ -27,7 +56,7 @@ viz_2 <- cash_rate |>
        y = "Expected peak cash rate")
 
 
-viz_3 <- cash_rate |>
+viz_4 <- cash_rate |>
   group_by(scrape_date) |>
   summarise(peak_date = min(date[cash_rate == max(cash_rate)])) |>
   ggplot(aes(x = scrape_date, y = peak_date)) +
