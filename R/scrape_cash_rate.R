@@ -32,8 +32,8 @@ r <- POST("https://pdftables-2uqbalu5ya-uw.a.run.app/upload",
 #         ["","Mar-23","Apr-23","May-23","Jun-23","Jul-23","Aug-23","Sep-23","Oct-23","Nov-23","Dec-23","Jan-24","Feb-24","Mar-24","Apr-24","May-24","Jun-24","Jul-24","Aug-24"],
 #         ["Implied Yield","3.510","3.600","3.660","3.635","3.590","3.530","3.515","3.475","3.440","3.400","3.390","3.365","3.340","3.315","3.290","3.270","3.240","3.225"]]}]}}"
 # }
-# The ASX PDF has one 2 x 19 table on page 1. We could that returned JSON dict has exactly one
-# 2 x 19 table on page 1 and report an error if it doesn't.
+# The ASX PDF has one 2 x 19 table on page 1. We could check that the returned JSON dict has exactly
+# one 2 x 19 table on page 1 and report an error if it doesn't.
 # Instead we assume we have the correct table.
 dict <- content(r, "parsed")
 page_tables <- dict$PageTables
