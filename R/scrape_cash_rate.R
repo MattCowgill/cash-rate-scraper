@@ -1,58 +1,55 @@
 # Scrape ASX 30 Day Interbank Cash Rate Futures Implied Yield Target from PDF
 library(tidyverse)
 library(lubridate)
-library(tesseract)
-library(magick)
+library(httr)
+library(jsonlite)
 
 # Download PDF from the ASX
 pdf_url <- "https://www.asx.com.au/data/trt/ib_expectation_curve_graph.pdf"
 pdf_path <- tempfile(fileext = ".pdf")
 download.file(pdf_url, pdf_path, mode = "wb")
 
-# Note that the table in the PDF appears to be part of an image, rather than a
-# normal PDF table. This means we need to use optical character recognition to
-# extract it
+# Call a web service to extract the page_tables in the PDF. We use the web service called by
+# https://docs2info.com/demo/ which is free.
 
-# Read the PDF as an image, crop it, and remove gridlines
-full_image <- image_read_pdf(pdf_path)
+# Upload the PDF as a multipart form.
+r <- POST("https://pdftables-2uqbalu5ya-uw.a.run.app/upload",
+  body = list(`uploaded-file` = upload_file(pdf_path, type="application/pdf")),
+  encode = "multipart"
+)
 
-table_image <- full_image |>
-  magick::image_crop(geometry = geometry_area(width = 875 * 3.1,
-                                              height = 40 * 3.1,
-                                              x_off = 170 * 3.1,
-                                              y_off = 651 * 3.1)) |>
-  image_quantize(colorspace = "gray") |>
-  image_transparent(color = "white", fuzz = 60)
+# The web service returns a JSON dict like this
+# {
+#   "NumberPages":1,
+#   "FirstPageProcessed":1,
+#   "LastPageProcessed":1,
+#   "BadPages":null,
+#   "PageTables":{
+#     "1":[
+#       {"Width":19,
+#       "Height":2,
+#       "Data":[
+#         ["","Mar-23","Apr-23","May-23","Jun-23","Jul-23","Aug-23","Sep-23","Oct-23","Nov-23","Dec-23","Jan-24","Feb-24","Mar-24","Apr-24","May-24","Jun-24","Jul-24","Aug-24"],
+#         ["Implied Yield","3.510","3.600","3.660","3.635","3.590","3.530","3.515","3.475","3.440","3.400","3.390","3.365","3.340","3.315","3.290","3.270","3.240","3.225"]]}]}}"
+# }
+# The ASX PDF has one 2 x 19 table on page 1. We could check that the returned JSON dict has exactly
+# one 2 x 19 table on page 1 and report an error if it doesn't.
+# Instead we assume we have the correct table.
+dict <- content(r, "parsed")
+cash_rate_table <- dict$PageTables$`1`[[1]]$Data
 
-# Extract the characters from the image
-strings <- table_image |>
-  ocr() |>
-  str_split(pattern = "\n") |>
-  unlist()
+# Trim the row headers in column 1.
+date <- tail(cash_rate_table[[1]], -1)
+cash_rate <- tail(cash_rate_table[[2]], -1)
 
-strings <- strings[strings != ""]
-
-string_list <- map(strings, ~(str_split(.x, " ")[[1]]))
-
-string_list <- map(string_list, ~.x[.x != ""])
+# Convert row 1 to dates and row 2 to numbers.
+date <- lubridate::my(date)
+cash_rate <- as.numeric(cash_rate)
 
 # Create a tibble with our newly-scraped data
-new_data <- tibble(date = string_list[[1]],
-       cash_rate = string_list[[2]],
-       scrape_date = Sys.Date()) |>
-  mutate(date = lubridate::my(date))
-
-# The decimal point is not always picked up; add it in
-# Note we are assuming all future cash rates are <10%
-
-new_data <- new_data |>
-  mutate(cash_rate = if_else(str_sub(cash_rate, 2, 2) == ".",
-                             cash_rate,
-                             paste0(str_sub(cash_rate, 1, 1),
-                                    ".",
-                                    str_sub(cash_rate, 2L, -1L))),
-         cash_rate = as.numeric(cash_rate))
-
+new_data <- tibble(date = date,
+      cash_rate = cash_rate,
+      scrape_date = Sys.Date())
 
 # Write a CSV of today's data
 write_csv(new_data, file.path("daily_data",
