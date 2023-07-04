@@ -1,5 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+**It appears that the ASX has changed its website in a way that has broken this scraper. I'll fix it when I'm back from holiday.**
 
 # cash-rate-scraper
 
