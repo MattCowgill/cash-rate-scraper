@@ -32,7 +32,7 @@ jobs:
         run: Rscript -e 'install.packages(c("vctrs"))'
 
       - name: Install packages
-        run: Rscript -e 'install.packages(c("tidyverse", "tesseract", "magick", "here", "lubridate", "ggrepel"))'
+        run: Rscript -e 'install.packages(c("tidyverse", "here", "jsonlite", "ggrepel"))'
 
       - name: Get data
         run: Rscript -e 'source(here::here("R", "scrape_cash_rate.R"), echo = TRUE)'
