@@ -1,62 +1,22 @@
-# Scrape ASX 30 Day Interbank Cash Rate Futures Implied Yield Target from PDF
 library(tidyverse)
-library(lubridate)
-library(tesseract)
-library(magick)
+library(jsonlite)
 
-# Download PDF from the ASX
-pdf_url <- "https://www.asx.com.au/data/trt/ib_expectation_curve_graph.pdf"
-pdf_path <- tempfile(fileext = ".pdf")
-download.file(pdf_url, pdf_path, mode = "wb")
+json_url <- "https://asx.api.markitdigital.com/asx-research/1.0/derivatives/interest-rate/IB/futures?days=1&height=179&width=179"
 
-# Note that the table in the PDF appears to be part of an image, rather than a
-# normal PDF table. This means we need to use optical character recognition to
-# extract it
-
-# Read the PDF as an image, crop it, and remove gridlines
-full_image <- image_read_pdf(pdf_path)
-
-table_image <- full_image |>
-  magick::image_crop(geometry = geometry_area(width = 875 * 3.1,
-                                              height = 40 * 3.1,
-                                              x_off = 170 * 3.1,
-                                              y_off = 651 * 3.1)) |>
-  image_quantize(colorspace = "gray") |>
-  image_transparent(color = "white", fuzz = 60)
-
-# Extract the characters from the image
-strings <- table_image |>
-  ocr() |>
-  str_split(pattern = "\n") |>
-  unlist()
-
-strings <- strings[strings != ""]
-
-string_list <- map(strings, ~(str_split(.x, " ")[[1]]))
-
-string_list <- map(string_list, ~.x[.x != ""])
-
-# Create a tibble with our newly-scraped data
-new_data <- tibble(date = string_list[[1]],
-       cash_rate = string_list[[2]],
-       scrape_date = Sys.Date()) |>
-  mutate(date = lubridate::my(date))
-
-# The decimal point is not always picked up; add it in
-# Note we are assuming all future cash rates are <10%
-
-new_data <- new_data |>
-  mutate(cash_rate = if_else(str_sub(cash_rate, 2, 2) == ".",
-                             cash_rate,
-                             paste0(str_sub(cash_rate, 1, 1),
-                                    ".",
-                                    str_sub(cash_rate, 2L, -1L))),
-         cash_rate = as.numeric(cash_rate))
-
+new_data <- jsonlite::fromJSON(json_url) |>
+  pluck("data", "items") |>
+  as_tibble() |>
+  mutate(dateExpiry = ymd(dateExpiry),
+         dateExpiry = floor_date(dateExpiry, "month")) |>
+  filter(pricePreviousSettlement != 0) |>
+  mutate(cash_rate = 100 - pricePreviousSettlement) |>
+  select(date = dateExpiry,
+         cash_rate,
+         scrape_date = datePreviousSettlement)
 
 # Write a CSV of today's data
 write_csv(new_data, file.path("daily_data",
-                              paste0("scraped_cash_rate_", Sys.Date(), ".csv")))
+                              paste0("scraped_cash_rate_", Sys.Date() - 1, ".csv")))
 
 # Load all existing data, combine with latest data
 all_data <- file.path("daily_data") |>
