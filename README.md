@@ -7,6 +7,7 @@ The key script in this repo is `R/scrape_cash_rate.R`. This file parses
 market expectations for the cash rate based on the [latest ASX cash rate
 implied yield
 curve](https://www.asx.com.au/markets/trade-our-derivatives-market/futures-market/rba-rate-tracker).
+
 The data is saved as a CSV in `daily_data`. The file
 `combined_data/all_data.Rds` contains a dataframe that is the
 combination of all the daily data CSVs.
