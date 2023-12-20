@@ -100,6 +100,5 @@ viz_4 <- cash_rate |>
   scale_y_date(date_labels = "%b\n%Y",
                date_breaks = "3 months") +
   labs(x = "Expected as at",
-       subtitle = "Cash rate expected to peak in") +
-  theme(panel.grid.minor = element_blank(),
-        axis.title = element_blank())
+       y = "Expected to peak in") +
+  theme(panel.grid.minor = element_blank())
