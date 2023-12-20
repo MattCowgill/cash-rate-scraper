@@ -22,7 +22,7 @@ The `.github/workflows/refresh_data.yaml` file contains the instructions
 to GitHub Actions to tell it to run `scrape_cash_rate.R` each day and
 commit the results in this repo.
 
-Please fork/copy/modify as you see fit.
+Please fork/copy/modify as you see fit!
 
 # Graphs!
 

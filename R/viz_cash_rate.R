@@ -22,20 +22,28 @@ viz_1 <- cash_rate |>
             aes(label = format(scrape_date, "%e %b\n%Y"))) +
   scale_colour_date(date_labels = "%b '%y") +
   scale_x_date(expand = expansion(c(0, 0.1)),
-               date_labels = "%b\n%Y") +
+               date_labels = "%b\n%Y",
+               breaks = seq(max(cash_rate$date),
+                            min(cash_rate$date),
+                            by = "-1 year")) +
+  scale_y_continuous(labels = \(x) paste0(x, "%")) +
   theme_minimal() +
   labs(subtitle = "Expected future cash rate",
        colour = "Expected\nas at:",
-       x = "Date")
+       x = "Date") +
+  theme(panel.grid.minor = element_blank(),
+        axis.title = element_blank())
 
-cash_rate |>
-  filter(scrape_date == max(scrape_date[scrape_date != max(scrape_date)]))
+max_scrape_date <- max(cash_rate$scrape_date)
+week_ago <- max_scrape_date - weeks(1)
+year_ago <- max_scrape_date - years(1)
+month_ago <- max_scrape_date - months(1)
+yesterday <- max(cash_rate$scrape_date[cash_rate$scrape_date < max_scrape_date])
 
 viz_2 <- cash_rate |>
-  filter(scrape_date %in% c(max(scrape_date),
-                            max(scrape_date) - weeks(1),
-                            max(scrape_date) - months(1),
-                            max(scrape_date) - years(1),
+  filter(scrape_date %in% c(max_scrape_date,
+                            min(scrape_date[scrape_date >= week_ago]),
+                            min(scrape_date[scrape_date >= month_ago]),
                             max(scrape_date[scrape_date != max(scrape_date)]))) |>
   distinct() |>
   ggplot(aes(x = date, y = cash_rate,
@@ -48,13 +56,18 @@ viz_2 <- cash_rate |>
                   nudge_x = 10,
                   min.segment.length = 10000,
                   aes(label = format(scrape_date, "%d %b %Y"))) +
-  scale_x_date(expand = expansion(c(0.05, 0.15))) +
+  scale_x_date(expand = expansion(c(0.05, 0.15)),
+               date_labels = "%b\n%Y",
+               breaks = seq(max(cash_rate$date),
+                            min(cash_rate$date),
+                            by = "-6 months")) +
+  scale_y_continuous(labels = \(x) paste0(x, "%")) +
   theme_minimal() +
   theme(legend.position = "none") +
   labs(subtitle = "Expected future cash rate",
-       x = "Date")
-
-
+       x = "Date") +
+  theme(panel.grid.minor = element_blank(),
+        axis.title = element_blank())
 
 viz_3 <- cash_rate |>
   group_by(scrape_date) |>
@@ -63,9 +76,13 @@ viz_3 <- cash_rate |>
   geom_line() +
   theme_minimal() +
   scale_x_date(date_labels = "%b\n%Y",
-               date_breaks = "1 months") +
+               date_breaks = "3 months") +
   labs(x = "Expected as at",
-       y = "Expected peak cash rate")
+       subtitle = "Expected peak cash rate") +
+  scale_y_continuous(labels = \(x) paste0(x, "%"),
+                     breaks = seq(0, 100, 0.25)) +
+  theme(panel.grid.minor = element_blank(),
+        axis.title = element_blank())
 
 
 viz_4 <- cash_rate |>
@@ -79,6 +96,10 @@ viz_4 <- cash_rate |>
               se = FALSE) +
   theme_minimal() +
   scale_x_date(date_labels = "%b\n%Y",
-               date_breaks = "1 months") +
+               date_breaks = "3 months") +
+  scale_y_date(date_labels = "%b\n%Y",
+               date_breaks = "3 months") +
   labs(x = "Expected as at",
-       y = "Cash rate expected to peak in")
+       subtitle = "Cash rate expected to peak in") +
+  theme(panel.grid.minor = element_blank(),
+        axis.title = element_blank())
