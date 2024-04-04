@@ -30,3 +30,8 @@ The file `R/viz_cash_rate.R` produces visualisations of this data, which
 are shown below.
 
 ![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-2-3.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-2-4.png)<!-- -->
+
+    #> Warning: Removed 126 rows containing missing values (`geom_point()`).
+    #> Warning: Removed 126 rows containing missing values (`geom_line()`).
+
+![](README_files/figure-gfm/unnamed-chunk-2-5.png)<!-- -->

@@ -102,3 +102,28 @@ viz_4 <- cash_rate |>
   labs(x = "Expected as at",
        y = "Expected to peak in") +
   theme(panel.grid.minor = element_blank())
+
+viz_5 <- cash_rate |>
+  group_by(scrape_date) |>
+  mutate(next_month = floor_date(scrape_date + months(1), "month"),
+         current_rate = mean(cash_rate[date == next_month])) |>
+  filter(date >= scrape_date) |>
+  mutate(diff = cash_rate - current_rate) |>
+  filter(diff <= -0.25) |>
+  filter(date == min(date)) |>
+  ggplot(aes(x = scrape_date,
+             y = date)) +
+  geom_point() +
+  geom_line() +
+  scale_x_date("Expected as at",
+               limits = ymd("2024-01-01",
+                            max(cash_rate$scrape_date)),
+               date_labels = "%b\n%Y") +
+  scale_y_date("Expected date of first cut",
+               date_labels = "%b\n%Y",
+               date_breaks = "3 months",
+               limits = \(x) ymd("2024-01-01",
+                                 x[2])) +
+  theme_minimal() +
+  labs(subtitle = "Expected date of first rate cut",
+       caption = "Refers to the first date at which futures pricing imply a 100% or greater chance of a 25bp cut relative to the then-current rate.")
