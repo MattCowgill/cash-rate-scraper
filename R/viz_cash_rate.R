@@ -118,7 +118,10 @@ viz_5 <- cash_rate |>
   scale_x_date("Expected as at",
                limits = ymd("2024-01-01",
                             max(cash_rate$scrape_date)),
-               date_labels = "%b\n%Y") +
+               breaks = seq(max(cash_rate$scrape_date),
+                            min(cash_rate$scrape_date),
+                            by = "-1 months"),
+               date_labels = "%d %b\n%Y") +
   scale_y_date("Expected date of first cut",
                date_labels = "%b\n%Y",
                date_breaks = "3 months",
