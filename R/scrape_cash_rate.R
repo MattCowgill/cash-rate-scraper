@@ -1,9 +1,15 @@
+library(conflicted)
+conflict_prefer_all("dplyr", quiet = TRUE)
 library(tidyverse)
 library(jsonlite)
 
 json_url <- "https://asx.api.markitdigital.com/asx-research/1.0/derivatives/interest-rate/IB/futures?days=1&height=179&width=179"
 
-new_data <- jsonlite::fromJSON(json_url) |>
+json_file <- tempfile()
+
+download.file(json_url, json_file)
+
+new_data <- jsonlite::fromJSON(json_file) |>
   pluck("data", "items") |>
   as_tibble() |>
   mutate(dateExpiry = ymd(dateExpiry),
