@@ -17,7 +17,7 @@ The key script in this repo is `R/scrape_cash_rate.R`. This file parses market e
 
 The data is saved as a CSV in `daily_data`. The file `combined_data/all_data.Rds` contains a dataframe that is the combination of all the daily data CSVs. 
 
-Note that there was a gap in the data collection between 1 July and 20 July, as the ASX changed its website.
+Note that there was a gap in the data collection between 1 July and 20 July, as the ASX changed its website. 
 
 I offer no assurance that this will continue to work, or that the data extracted using this script will be free of errors.
 
@@ -27,7 +27,7 @@ Please fork/copy/modify as you see fit.
 
 # Graphs!
 
-The file `R/viz_cash_rate.R` produces visualisations of this data, which are shown below.
+The file `R/viz_cash_rate.R` produces visualisations of this data, which are shown below:
 
 ```{r, echo = FALSE}
 source(file.path("R", "viz_cash_rate.R"))
