@@ -221,6 +221,61 @@ if (nrow(daily_forecasts) == 0) {
   cat("\n✓ Saved regression coefficients to combined_data/rmse_regression_results.csv\n")
   cat("✓ Saved model fit statistics to combined_data/rmse_regression_glance.csv\n")
   cat("✓ Saved model objects to combined_data/rmse_regression_models.rds\n")
+
+  # Visualise fitted lines from each model against the realised RMSE by horizon
+  rmse_actual <- model_data %>%
+    group_by(days_ahead) %>%
+    summarise(
+      actual_rmse = sqrt(mean(abs_error^2, na.rm = TRUE)),
+      .groups = "drop"
+    )
+
+  rmse_fitted <- imap(rmse_models, ~ augment(.x, data = model_data) %>%
+    select(days_ahead, .fitted) %>%
+    group_by(days_ahead) %>%
+    summarise(
+      predicted_rmse = sqrt(mean(.fitted^2, na.rm = TRUE)),
+      .groups = "drop"
+    ) %>%
+    mutate(model = .y)) %>%
+    bind_rows()
+
+  rmse_fit_plot <- ggplot() +
+    geom_line(
+      data = rmse_actual,
+      aes(x = days_ahead, y = actual_rmse, colour = "Actual RMSE"),
+      linewidth = 1.2
+    ) +
+    geom_line(
+      data = rmse_fitted,
+      aes(x = days_ahead, y = predicted_rmse, colour = model),
+      linewidth = 1,
+      linetype = "dashed"
+    ) +
+    scale_colour_manual(
+      values = c(
+        "Actual RMSE" = "#1b9e77",
+        baseline = "#d95f02",
+        year_fixed_effects = "#7570b3",
+        meeting_fixed_effects = "#e7298a"
+      ),
+      name = "Series"
+    ) +
+    labs(
+      title = "RMSE Model Fit vs. Actual Forecast Error",
+      subtitle = "Estimated lines of best fit for three models with different fixed effects",
+      x = "Days to meeting",
+      y = "Root mean squared forecast error"
+    ) +
+    scale_x_reverse() +
+    theme_minimal(base_size = 12) +
+    theme(
+      plot.title = element_text(face = "bold"),
+      legend.position = "bottom"
+    )
+
+  ggsave("docs/rmse_model_fit.png", rmse_fit_plot, width = 10, height = 6, dpi = 300)
+  cat("\n✓ Saved RMSE model fit comparison plot to: docs/rmse_model_fit.png\n")
 }
 
 # =============================================
