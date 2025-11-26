@@ -279,6 +279,7 @@ for (mt in future_meetings) {
       axis.text.x = element_text(angle = 45, hjust = 1)
     )
 
-  output_path <- here("docs", "meeting_lines", glue("line_probabilities_{mt}.png"))
+  meeting_label <- format(as.Date(mt), "%Y-%m-%d")
+  output_path <- here("docs", "meeting_lines", glue("line_probabilities_meeting_{meeting_label}.png"))
   ggsave(filename = output_path, plot = line_plot, width = 8, height = 5, dpi = 300, device = "png")
 }
