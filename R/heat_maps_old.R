@@ -362,9 +362,9 @@ fmt_file <- function(x) format(as.Date(x), "%Y-%m-%d")
 # MEETING UPDATE LOGIC
 # =============================================
 
-# Process only future (and today) meetings on each run
-cat("\nProcessing heatmaps for future meetings only.\n")
-meetings_to_process <- sort(unique(meeting_schedule$meeting_date[meeting_schedule$meeting_date >= Sys.Date()]))
+# Process only historical meetings (strictly before today)
+cat("\nProcessing heatmaps for historical meetings only.\n")
+meetings_to_process <- sort(unique(meeting_schedule$meeting_date[meeting_schedule$meeting_date < Sys.Date()]))
 cat("Total meetings to process:", length(meetings_to_process), "\n\n")
 
 # =============================================

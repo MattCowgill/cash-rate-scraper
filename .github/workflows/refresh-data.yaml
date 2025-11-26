@@ -56,6 +56,10 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
         run: Rscript -e 'source(here::here("R","heat_maps.R"), echo = TRUE)'
 
+      - name: Make historical heatmaps graph (monthly)
+        if: github.event_name == 'schedule' && github.event.schedule == '0 0 1 * *'
+        run: Rscript -e 'source(here::here("R","heat_maps_old.R"), echo = TRUE)'
+
       - name: Generate index.html from charts
         run: Rscript R/write_index_html.R
 
