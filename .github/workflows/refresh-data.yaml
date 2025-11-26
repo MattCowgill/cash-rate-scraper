@@ -50,7 +50,7 @@ jobs:
         run: Rscript -e 'source(here::here("R","line_chart.R"), echo = TRUE)'
 
       - name: Make multi-meeting line graphs
-        run: Rscript -e 'source(here::here("R","future_meeting_line_charts.R"), echo = TRUE)'
+        run: Rscript -e 'source(here::here("f","future_meeting_line_charts.R"), echo = TRUE)'
 
       - name: Make heatmaps graph
         if: github.event_name != 'workflow_dispatch'
