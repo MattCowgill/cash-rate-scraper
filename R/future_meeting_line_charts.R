@@ -218,6 +218,16 @@ as_of_time <- with_tz(as.POSIXct(max(all_estimates_buckets$scrape_time)) + hours
 move_levels <- c("-75 bp cut", "-50 bp cut", "-25 bp cut", "No change",
                 "+25 bp hike", "+50 bp hike", "+75 bp hike")
 
+move_palette <- c(
+  "-75 bp cut" = "#08306b",
+  "-50 bp cut" = "#2171b5",
+  "-25 bp cut" = "#6baed6",
+  "No change" = "#666666",
+  "+25 bp hike" = "#ef3b2c",
+  "+50 bp hike" = "#cb181d",
+  "+75 bp hike" = "#99000d"
+)
+
 for (mt in future_meetings) {
   meeting_df <- all_estimates_buckets %>%
     filter(meeting_date == mt) %>%
@@ -246,10 +256,13 @@ for (mt in future_meetings) {
     next
   }
 
+  end_time <- max(meeting_df$scrape_time)
+  start_time <- max(min(meeting_df$scrape_time), end_time %m-% months(2))
+
   line_plot <- ggplot(meeting_df, aes(x = scrape_time + hours(hours_tz), y = probability, color = move)) +
     geom_line(linewidth = 1) +
     scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
-    scale_color_brewer(palette = "Dark2", drop = FALSE) +
+    scale_color_manual(values = move_palette, drop = FALSE) +
     labs(
       title = glue("Cash rate move probabilities — {format(as.Date(mt), '%d %B %Y')}"),
       subtitle = glue("As of {format(as_of_time, '%d %B %Y, %I:%M %p AEST')}"),
@@ -258,6 +271,7 @@ for (mt in future_meetings) {
       color = "Move",
       caption = "Probabilities may not add up to 100% because moves with small probabilities are not included."
     ) +
+    coord_cartesian(xlim = c(start_time + hours(hours_tz), end_time + hours(hours_tz))) +
     theme_minimal() +
     theme(
       legend.position = "bottom",
