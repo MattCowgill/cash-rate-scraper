@@ -47,6 +47,28 @@
     .expandable:hover {
       opacity: 0.85;
     }
+    .toggle-button {
+      display: inline-block;
+      margin: 0 auto 20px auto;
+      padding: 12px 18px;
+      background-color: #2c3e50;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+    .toggle-button:hover {
+      background-color: #1f2d3a;
+      transform: translateY(-1px);
+    }
+    .toggle-button:active {
+      transform: translateY(0);
+    }
+    .hidden {
+      display: none;
+    }
     
     /* Lightbox modal styles */
     .lightbox {
@@ -183,9 +205,15 @@
 <div class="chart-card">
   <iframe src="meetings/daily_heatmap_2026-12-07.html" class="chart-iframe" frameborder="0"></iframe>
 </div> </div>
-  
+
   <h1 style="margin-top:60px; text-align:center;">Previous Meetings</h1>
-<div class="grid"> <div class="chart-card">
+  <p style="max-width: 700px; margin: 0 auto 20px auto; text-align: center; color: #555;">
+    Click the button below to view historical meeting heatmaps.
+  </p>
+  <div style="text-align: center; margin-bottom: 20px;">
+    <button id="toggle-old-meetings" class="toggle-button">Show previous meeting heatmaps</button>
+  </div>
+<div id="old-meetings" class="grid hidden"> <div class="chart-card">
   <h3 style="margin: 0 0 15px 0; color: #2c3e50;">03 November 2025</h3>
   <img src="meetings/daily_heatmap_2025-11-03.png" alt="03 November 2025" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
 </div>
@@ -333,8 +361,24 @@
     <span class="lightbox-close">&times;</span>
     <img class="lightbox-content" id="lightbox-img" alt="Expanded view">
   </div>
-  
+
   <script>
+    const oldMeetings = document.getElementById("old-meetings");
+    const toggleOldMeetings = document.getElementById("toggle-old-meetings");
+
+    if (oldMeetings && toggleOldMeetings) {
+      toggleOldMeetings.addEventListener("click", () => {
+        const isHidden = oldMeetings.classList.toggle("hidden");
+        toggleOldMeetings.textContent = isHidden
+          ? "Show previous meeting heatmaps"
+          : "Hide previous meeting heatmaps";
+
+        if (!isHidden) {
+          oldMeetings.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    }
+
     // Get the lightbox elements
     const lightbox = document.getElementById("lightbox");
     const lightboxImg = document.getElementById("lightbox-img");
