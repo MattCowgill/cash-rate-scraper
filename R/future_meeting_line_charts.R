@@ -218,17 +218,6 @@ as_of_time <- with_tz(as.POSIXct(max(all_estimates_buckets$scrape_time)) + hours
 move_levels <- c("-75 bp cut", "-50 bp cut", "-25 bp cut", "No change",
                 "+25 bp hike", "+50 bp hike", "+75 bp hike")
 
-# Color palette: cuts (blue shades), no change (gray), hikes (red shades)
-move_colors <- c(
-  "-75 bp cut" = "#08306B",
-  "-50 bp cut" = "#2171B5",
-  "-25 bp cut" = "#6BAED6",
-  "No change" = "#6E6E6E",
-  "+25 bp hike" = "#F1695B",
-  "+50 bp hike" = "#D73027",
-  "+75 bp hike" = "#A50026"
-)
-
 for (mt in future_meetings) {
   meeting_df <- all_estimates_buckets %>%
     filter(meeting_date == mt) %>%
@@ -257,18 +246,10 @@ for (mt in future_meetings) {
     next
   }
 
-  plot_times <- meeting_df$scrape_time + hours(hours_tz)
-  x_breaks <- seq(
-    from = min(plot_times),
-    to = max(plot_times),
-    length.out = max(10, length(unique(plot_times)))
-  )
-
   line_plot <- ggplot(meeting_df, aes(x = scrape_time + hours(hours_tz), y = probability, color = move)) +
     geom_line(linewidth = 1) +
     scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
-    scale_color_manual(values = move_colors, drop = FALSE) +
-    scale_x_datetime(breaks = x_breaks, date_labels = "%d %b %H:%M") +
+    scale_color_brewer(palette = "Dark2", drop = FALSE) +
     labs(
       title = glue("Cash rate move probabilities — {format(as.Date(mt), '%d %B %Y')}"),
       subtitle = glue("As of {format(as_of_time, '%d %B %Y, %I:%M %p AEST')}"),
@@ -284,10 +265,6 @@ for (mt in future_meetings) {
       axis.text.x = element_text(angle = 45, hjust = 1)
     )
 
-  meeting_date_str <- format(as.Date(mt), "%Y-%m-%d")
-  output_path <- here(
-    "docs", "meeting_lines",
-    glue("line_probabilities_meeting_{meeting_date_str}.png")
-  )
+  output_path <- here("docs", "meeting_lines", glue("line_probabilities_{mt}.png"))
   ggsave(filename = output_path, plot = line_plot, width = 8, height = 5, dpi = 300, device = "png")
 }

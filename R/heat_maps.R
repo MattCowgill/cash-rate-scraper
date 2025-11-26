@@ -36,11 +36,53 @@ for (dir_path in required_dirs) {
 # 2) Load data & RMSE lookup
 # =============================================
 cash_rate <- readRDS("combined_data/all_data.Rds")
+
+tz_scrape <- "Australia/Sydney"
+
+# Append any newer CSV scrapes so we always plot the latest data (including today)
+latest_rds_scrape <- suppressWarnings(max(as.Date(lubridate::with_tz(cash_rate$scrape_time, tz_scrape)), na.rm = TRUE))
+if (!is.finite(latest_rds_scrape)) latest_rds_scrape <- as.Date("1900-01-01")
+
+csv_files <- c(
+  list.files(path = "daily_data", pattern = "^scraped_cash_rate_\\d{4}-\\d{2}-\\d{2}_\\d{4}\\.csv$", full.names = TRUE),
+  list.files(path = ".", pattern = "^scraped_cash_rate_\\d{4}-\\d{2}-\\d{2}_\\d{4}\\.csv$", full.names = TRUE)
+) %>%
+  unique()
+
+if (length(csv_files) > 0) {
+  csv_data <- purrr::map_dfr(csv_files, function(f) {
+    readr::read_csv(f, show_col_types = FALSE) %>%
+      dplyr::mutate(
+        date = as.Date(date),
+        cash_rate = as.double(cash_rate),
+        scrape_date = as.Date(scrape_date),
+        scrape_time = lubridate::ymd_hms(scrape_time, tz = "UTC")
+      )
+  }) %>%
+    dplyr::filter(!is.na(scrape_date))
+
+  newest_csv_date <- suppressWarnings(max(as.Date(lubridate::with_tz(csv_data$scrape_time, tz_scrape)), na.rm = TRUE))
+
+  if (is.finite(newest_csv_date) && newest_csv_date > latest_rds_scrape) {
+    latest_csv_rows <- csv_data %>%
+      dplyr::filter(as.Date(lubridate::with_tz(scrape_time, tz_scrape)) > latest_rds_scrape)
+
+    cash_rate <- cash_rate %>%
+      dplyr::bind_rows(latest_csv_rows) %>%
+      dplyr::arrange(scrape_time) %>%
+      dplyr::distinct(date, scrape_time, .keep_all = TRUE)
+
+    cat("Appended", nrow(latest_csv_rows), "rows from newest CSV scrapes.\n")
+  } else {
+    cat("No CSV scrapes newer than existing RDS data found.\n")
+  }
+}
+
 load("combined_data/rmse_new.RData")
 
 # Consolidate to daily level
 cash_rate_daily <- cash_rate %>%
-  mutate(scrape_date = as.Date(scrape_time)) %>%
+  mutate(scrape_date = as.Date(lubridate::with_tz(scrape_time, tz_scrape))) %>%
   group_by(scrape_date, date) %>%
   slice_max(scrape_time, n = 1, with_ties = FALSE) %>%
   ungroup() %>%
