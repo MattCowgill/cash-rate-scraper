@@ -249,7 +249,8 @@ for (mt in future_meetings) {
     mutate(peak_probability = max(probability, na.rm = TRUE)) %>%
     ungroup() %>%
     filter(peak_probability >= 0.10) %>%
-    mutate(move = factor(move, levels = move_levels))
+    mutate(move = factor(move, levels = move_levels)) %>%
+    droplevels()
 
   if (nrow(meeting_df) == 0) {
     message(glue("Skipping {mt}: no moves exceed 10% probability."))
@@ -262,7 +263,7 @@ for (mt in future_meetings) {
   line_plot <- ggplot(meeting_df, aes(x = scrape_time + hours(hours_tz), y = probability, color = move)) +
     geom_line(linewidth = 1) +
     scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
-    scale_color_manual(values = move_palette, drop = FALSE) +
+    scale_color_manual(values = move_palette, drop = TRUE) +
     labs(
       title = glue("Cash rate move probabilities — {format(as.Date(mt), '%d %B %Y')}"),
       subtitle = glue("As of {format(as_of_time, '%d %B %Y, %I:%M %p AEST')}"),
