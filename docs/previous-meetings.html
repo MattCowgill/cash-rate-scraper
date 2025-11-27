@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Previous RBA Meeting Heatmaps</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Roboto, sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 2rem;
+      color: #2c3e50;
+    }
+    p.subtitle {
+      text-align: center;
+      color: #555;
+      margin-bottom: 30px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 24px;
+      padding: 10px;
+      max-width: 1500px;
+      margin: 0 auto 30px auto;
+    }
+    .chart-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      padding: 16px;
+      text-align: center;
+    }
+    .chart-card h3 {
+      margin: 0 0 12px 0;
+      color: #2c3e50;
+    }
+    .chart-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .chart-card img:hover { opacity: 0.9; }
+
+    .back-link {
+      display: inline-block;
+      margin: 0 auto 30px auto;
+      padding: 12px 22px;
+      background-color: #3498db;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Lightbox modal styles */
+    .lightbox {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox-content {
+      max-width: 95%;
+      max-height: 95%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 35px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .lightbox-close:hover { color: #bbb; }
+
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; max-width: 95vw; }
+      .lightbox-close { top: 10px; right: 20px; font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Heatmaps for Previous RBA Meetings</h1>
+  <p class="subtitle">Click any heatmap to view a larger version.</p>
+  <div style="text-align: center; margin-bottom: 20px;">
+    <a href="index.html" class="back-link">← Back to main page</a>
+  </div>
+
+  <div class="grid">
+    <div class="chart-card">
+      <h3>03 November 2025</h3>
+      <img src="meetings/daily_heatmap_2025-11-03.png" alt="03 November 2025" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>29 September 2025</h3>
+      <img src="meetings/daily_heatmap_2025-09-29.png" alt="29 September 2025" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>11 August 2025</h3>
+      <img src="meetings/daily_heatmap_2025-08-11.png" alt="11 August 2025" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>07 July 2025</h3>
+      <img src="meetings/daily_heatmap_2025-07-07.png" alt="07 July 2025" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>19 May 2025</h3>
+      <img src="meetings/daily_heatmap_2025-05-19.png" alt="19 May 2025" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>31 March 2025</h3>
+      <img src="meetings/daily_heatmap_2025-03-31.png" alt="31 March 2025" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>17 February 2025</h3>
+      <img src="meetings/daily_heatmap_2025-02-17.png" alt="17 February 2025" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>09 December 2024</h3>
+      <img src="meetings/daily_heatmap_2024-12-09.png" alt="09 December 2024" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>04 November 2024</h3>
+      <img src="meetings/daily_heatmap_2024-11-04.png" alt="04 November 2024" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>23 September 2024</h3>
+      <img src="meetings/daily_heatmap_2024-09-23.png" alt="23 September 2024" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>05 August 2024</h3>
+      <img src="meetings/daily_heatmap_2024-08-05.png" alt="05 August 2024" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>17 June 2024</h3>
+      <img src="meetings/daily_heatmap_2024-06-17.png" alt="17 June 2024" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>06 May 2024</h3>
+      <img src="meetings/daily_heatmap_2024-05-06.png" alt="06 May 2024" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>18 March 2024</h3>
+      <img src="meetings/daily_heatmap_2024-03-18.png" alt="18 March 2024" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>05 February 2024</h3>
+      <img src="meetings/daily_heatmap_2024-02-05.png" alt="05 February 2024" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>04 December 2023</h3>
+      <img src="meetings/daily_heatmap_2023-12-04.png" alt="04 December 2023" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>06 November 2023</h3>
+      <img src="meetings/daily_heatmap_2023-11-06.png" alt="06 November 2023" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>02 October 2023</h3>
+      <img src="meetings/daily_heatmap_2023-10-02.png" alt="02 October 2023" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>04 September 2023</h3>
+      <img src="meetings/daily_heatmap_2023-09-04.png" alt="04 September 2023" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>31 July 2023</h3>
+      <img src="meetings/daily_heatmap_2023-07-31.png" alt="31 July 2023" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>03 July 2023</h3>
+      <img src="meetings/daily_heatmap_2023-07-03.png" alt="03 July 2023" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>05 June 2023</h3>
+      <img src="meetings/daily_heatmap_2023-06-05.png" alt="05 June 2023" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>01 May 2023</h3>
+      <img src="meetings/daily_heatmap_2023-05-01.png" alt="01 May 2023" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>03 April 2023</h3>
+      <img src="meetings/daily_heatmap_2023-04-03.png" alt="03 April 2023" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>06 March 2023</h3>
+      <img src="meetings/daily_heatmap_2023-03-06.png" alt="06 March 2023" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>06 February 2023</h3>
+      <img src="meetings/daily_heatmap_2023-02-06.png" alt="06 February 2023" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>05 December 2022</h3>
+      <img src="meetings/daily_heatmap_2022-12-05.png" alt="05 December 2022" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>31 October 2022</h3>
+      <img src="meetings/daily_heatmap_2022-10-31.png" alt="31 October 2022" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>03 October 2022</h3>
+      <img src="meetings/daily_heatmap_2022-10-03.png" alt="03 October 2022" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>05 September 2022</h3>
+      <img src="meetings/daily_heatmap_2022-09-05.png" alt="05 September 2022" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>01 August 2022</h3>
+      <img src="meetings/daily_heatmap_2022-08-01.png" alt="01 August 2022" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>04 July 2022</h3>
+      <img src="meetings/daily_heatmap_2022-07-04.png" alt="04 July 2022" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>06 June 2022</h3>
+      <img src="meetings/daily_heatmap_2022-06-06.png" alt="06 June 2022" class="expandable" />
+    </div>
+    <div class="chart-card">
+      <h3>02 May 2022</h3>
+      <img src="meetings/daily_heatmap_2022-05-02.png" alt="02 May 2022" class="expandable" />
+    </div>
+  </div>
+
+  <div id="lightbox" class="lightbox">
+    <span class="lightbox-close">&times;</span>
+    <img class="lightbox-content" id="lightbox-img" alt="Expanded view" />
+  </div>
+
+  <script>
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightbox-img");
+    const closeBtn = document.querySelector(".lightbox-close");
+
+    document.querySelectorAll(".expandable").forEach(img => {
+      img.addEventListener("click", function() {
+        lightbox.classList.add("active");
+        lightboxImg.src = this.src;
+        lightboxImg.alt = this.alt;
+      });
+    });
+
+    closeBtn.addEventListener("click", function() {
+      lightbox.classList.remove("active");
+    });
+
+    lightbox.addEventListener("click", function(e) {
+      if (e.target === lightbox) {
+        lightbox.classList.remove("active");
+      }
+    });
+
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && lightbox.classList.contains("active")) {
+        lightbox.classList.remove("active");
+      }
+    });
+  </script>
+</body>
+</html>
