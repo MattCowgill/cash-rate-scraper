@@ -180,7 +180,14 @@ for (i in seq_len(nrow(all_estimates))) {
   })
   p_vec[p_vec < 0] <- 0
   p_vec[p_vec < 0.01] <- 0
-  p_vec <- p_vec / sum(p_vec)
+
+  # Guard against zero-probability vectors to keep downstream calculations finite
+  p_total <- sum(p_vec)
+  if (p_total > 0) {
+    p_vec <- p_vec / p_total
+  } else {
+    p_vec <- rep(0, length(p_vec))
+  }
 
   nearest <- order(abs(bucket_centers - mu_i))[1:2]
   b1 <- min(bucket_centers[nearest])
@@ -193,6 +200,9 @@ for (i in seq_len(nrow(all_estimates))) {
 
   blend <- blend_weight(d_i)
   v <- blend * l_vec + (1 - blend) * p_vec
+
+  v_total <- sum(v)
+  if (v_total > 0) v <- v / v_total
 
   bucket_list[[i]] <- tibble(
     scrape_time = all_estimates$scrape_time[i],
