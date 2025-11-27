@@ -33,6 +33,7 @@ analytics_snippet <- sprintf('
 
 # Ensure target directory exists
 if (!dir.exists("docs/meetings")) dir.create("docs/meetings", recursive = TRUE)
+if (!dir.exists("docs/meeting_lines")) dir.create("docs/meeting_lines", recursive = TRUE)
 
 # Find meeting HTMLs (interactive heatmaps)
 html_basenames <- list.files(
@@ -213,8 +214,50 @@ future_meeting_section <- if (length(future_cards) > 0) {
 
 # Past meetings section
 past_meeting_section <- if (length(past_cards) > 0) {
-  paste('<h1 style="margin-top:60px; text-align:center;">Previous Meetings</h1>\n<div class="grid">', 
+  paste('<h1 style="margin-top:60px; text-align:center;">Previous Meetings</h1>\n<div class="grid">',
         paste(past_cards, collapse = "\n"), '</div>')
+} else {
+  ""
+}
+
+# Line probability charts by meeting
+line_prob_cards <- character(0)
+
+line_prob_files <- list.files(
+  "docs/meeting_lines",
+  pattern = "^line_probabilities_meeting_\\d{4}-\\d{2}-\\d{2}\\.png$",
+  full.names = FALSE
+)
+
+if (length(line_prob_files) > 0) {
+  line_prob_dates <- str_match(line_prob_files, "line_probabilities_meeting_(\\d{4}-\\d{2}-\\d{2})\\.png")[, 2]
+  line_prob_dates_obj <- as.Date(line_prob_dates, format = "%Y-%m-%d")
+
+  order_idx <- order(line_prob_dates_obj, decreasing = FALSE, na.last = TRUE)
+  line_prob_files <- line_prob_files[order_idx]
+  line_prob_dates_obj <- line_prob_dates_obj[order_idx]
+
+  line_prob_cards <- vapply(
+    seq_along(line_prob_files),
+    function(i) {
+      png_path <- file.path("meeting_lines", line_prob_files[i])
+      date_label <- format(line_prob_dates_obj[i], "%d %B %Y")
+
+      sprintf(
+        '<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">%s</h3>
+  <img src="%s" alt="Meeting probability lines for %s" class="expandable" style="width: 100%%; height: auto; border-radius: 6px;" />
+</div>',
+        date_label, png_path, date_label
+      )
+    },
+    character(1)
+  )
+}
+
+line_prob_section <- if (length(line_prob_cards) > 0) {
+  paste('<h1 style="margin-top:60px; text-align:center;">Probability Lines by Meeting</h1>\n<div class="grid">',
+        paste(line_prob_cards, collapse = "\n"), '</div>')
 } else {
   ""
 }
@@ -342,7 +385,9 @@ html <- sprintf('
   %s
 
   %s
-  
+
+  %s
+
   %s
 
   %s
@@ -392,11 +437,12 @@ html <- sprintf('
 </html>
 ',
   analytics_snippet,
-  
+
   interactive_line_section,
   area_chart_section,
   future_meeting_section,
   past_meeting_section,
+  line_prob_section,
   intro_paragraph
 )
 
