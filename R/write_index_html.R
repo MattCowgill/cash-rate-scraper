@@ -378,10 +378,6 @@ html <- sprintf('
 
   %s
 
-  
-
-  %s
-
   %s
 
   %s
@@ -441,7 +437,7 @@ html <- sprintf('
   interactive_line_section,
   area_chart_section,
   future_meeting_section,
-  past_meeting_section,
+  
   line_prob_section,
   intro_paragraph
 )
