@@ -3,13 +3,25 @@
 # Using Spline Smoothing for Final Output
 # =============================================
 
+ensure_packages <- function(pkgs) {
+  missing_pkgs <- pkgs[!pkgs %in% rownames(installed.packages())]
+  if (length(missing_pkgs) > 0) {
+    install.packages(missing_pkgs, repos = "https://cloud.r-project.org")
+  }
+}
+
+ensure_packages(c(
+  "dplyr", "tidyr", "lubridate", "readr", "ggplot2", "zoo", "broom",
+  "purrr", "readrba", "tzdb"
+))
+
 library(dplyr)
 library(tidyr)
 library(lubridate)
 library(readr)
 library(ggplot2)
 library(zoo)
-library(broom) 
+library(broom)
 library(purrr)
 
 # =============================================
