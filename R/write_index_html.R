@@ -205,29 +205,15 @@ if (file.exists("docs/area.png")) {
 }
 
 # Future meetings section
-future_meeting_section <- if (length(future_cards) > 0) {
-  paste('<h1>Cash Rate Target Probabilities By RBA Meeting</h1>\n<div class="grid">', 
-        paste(future_cards, collapse = "\n"), '</div>')
-} else {
-  '<h1>Cash Rate Target Probabilities By RBA Meeting</h1>\n<p style="text-align:center;">No upcoming RBA meeting charts available.</p>'
-}
-
-# Past meetings section
-past_meeting_section <- if (length(past_cards) > 0) {
-  paste('<h1 style="margin-top:60px; text-align:center;">Previous Meetings</h1>\n<div class="grid">',
-        paste(past_cards, collapse = "\n"), '</div>')
-} else {
-  ""
-}
-
-# Line probability charts by meeting
-line_prob_cards <- character(0)
-
+# Line probability charts by meeting (future and past)
 line_prob_files <- list.files(
   "docs/meeting_lines",
   pattern = "^line_probabilities_meeting_\\d{4}-\\d{2}-\\d{2}\\.png$",
   full.names = FALSE
 )
+
+future_line_cards <- character(0)
+past_line_cards <- character(0)
 
 if (length(line_prob_files) > 0) {
   line_prob_dates <- str_match(line_prob_files, "line_probabilities_meeting_(\\d{4}-\\d{2}-\\d{2})\\.png")[, 2]
@@ -237,8 +223,25 @@ if (length(line_prob_files) > 0) {
   line_prob_files <- line_prob_files[order_idx]
   line_prob_dates_obj <- line_prob_dates_obj[order_idx]
 
-  line_prob_cards <- vapply(
-    seq_along(line_prob_files),
+  future_line_cards <- vapply(
+    which(line_prob_dates_obj >= current_date),
+    function(i) {
+      png_path <- file.path("meeting_lines", line_prob_files[i])
+      date_label <- format(line_prob_dates_obj[i], "%d %B %Y")
+
+      sprintf(
+        '<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">%s</h3>
+  <img src="%s" alt="Meeting probability lines for %s" class="expandable" style="width: 100%%; height: auto; border-radius: 6px;" />
+</div>',
+        date_label, png_path, date_label
+      )
+    },
+    character(1)
+  )
+
+  past_line_cards <- vapply(
+    which(line_prob_dates_obj < current_date),
     function(i) {
       png_path <- file.path("meeting_lines", line_prob_files[i])
       date_label <- format(line_prob_dates_obj[i], "%d %B %Y")
@@ -255,9 +258,87 @@ if (length(line_prob_files) > 0) {
   )
 }
 
-line_prob_section <- if (length(line_prob_cards) > 0) {
-  paste('<h1 style="margin-top:60px; text-align:center;">Probability Lines by Meeting</h1>\n<div class="grid">',
-        paste(line_prob_cards, collapse = "\n"), '</div>')
+# Area charts (all moves) per meeting
+area_meeting_files <- list.files(
+  "docs/meetings",
+  pattern = "^area_all_moves_\\d{4}-\\d{2}-\\d{2}\\.png$",
+  full.names = FALSE
+)
+
+future_area_cards <- character(0)
+if (length(area_meeting_files) > 0) {
+  area_dates <- str_match(area_meeting_files, "area_all_moves_(\\d{4}-\\d{2}-\\d{2})\\.png")[, 2]
+  area_dates_obj <- as.Date(area_dates, format = "%Y-%m-%d")
+
+  area_order_idx <- order(area_dates_obj, decreasing = FALSE, na.last = TRUE)
+  area_meeting_files <- area_meeting_files[area_order_idx]
+  area_dates_obj <- area_dates_obj[area_order_idx]
+
+  future_area_cards <- vapply(
+    which(area_dates_obj >= current_date),
+    function(i) {
+      png_path <- file.path("meetings", area_meeting_files[i])
+      date_label <- format(area_dates_obj[i], "%d %B %Y")
+
+      sprintf(
+        '<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">%s</h3>
+  <img src="%s" alt="Meeting area chart for %s" class="expandable" style="width: 100%%; height: auto; border-radius: 6px;" />
+</div>',
+        date_label, png_path, date_label
+      )
+    },
+    character(1)
+  )
+}
+
+# Future meetings visualization tabs
+heatmap_tab <- if (length(future_cards) > 0) {
+  paste('<div class="grid">', paste(future_cards, collapse = "\n"), '</div>')
+} else {
+  '<p style="text-align:center;">No upcoming RBA meeting heatmaps available.</p>'
+}
+
+line_tab <- if (length(future_line_cards) > 0) {
+  paste('<div class="grid">', paste(future_line_cards, collapse = "\n"), '</div>')
+} else {
+  '<p style="text-align:center;">No upcoming RBA meeting line charts available.</p>'
+}
+
+area_tab <- if (length(future_area_cards) > 0) {
+  paste('<div class="grid">', paste(future_area_cards, collapse = "\n"), '</div>')
+} else {
+  '<p style="text-align:center;">No upcoming RBA meeting area charts available.</p>'
+}
+
+future_meeting_section <- sprintf('
+  <section>
+    <h1>Cash Rate Target Probabilities By RBA Meeting</h1>
+    <div class="tab-buttons" role="tablist">
+      <button class="tab-button active" data-target="heatmap" aria-pressed="true">Heatmaps</button>
+      <button class="tab-button" data-target="line" aria-pressed="false">Line Charts</button>
+      <button class="tab-button" data-target="area" aria-pressed="false">Area Charts</button>
+    </div>
+    <div class="tab-content active" id="tab-heatmap">%s</div>
+    <div class="tab-content" id="tab-line">%s</div>
+    <div class="tab-content" id="tab-area">%s</div>
+  </section>',
+  heatmap_tab,
+  line_tab,
+  area_tab
+)
+
+# Past meetings section
+past_meeting_section <- if (length(past_cards) > 0) {
+  paste('<h1 style="margin-top:60px; text-align:center;">Previous Meetings</h1>\n<div class="grid">',
+        paste(past_cards, collapse = "\n"), '</div>')
+} else {
+  ""
+}
+
+past_line_section <- if (length(past_line_cards) > 0) {
+  paste('<h1 style="margin-top:60px; text-align:center;">Past Meeting Line Charts</h1>\n<div class="grid">',
+        paste(past_line_cards, collapse = "\n"), '</div>')
 } else {
   ""
 }
@@ -291,6 +372,38 @@ html <- sprintf('
       padding: 10px;
       max-width: 2200px;
       margin: 0 auto;
+    }
+    .tab-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 20px 0 30px 0;
+      flex-wrap: wrap;
+    }
+    .tab-button {
+      padding: 10px 18px;
+      border: 1px solid #d1d5db;
+      background: #f8fafc;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #334155;
+      transition: all 0.2s ease;
+    }
+    .tab-button:hover {
+      background: #e2e8f0;
+    }
+    .tab-button.active {
+      background: #2563eb;
+      color: #fff;
+      border-color: #1d4ed8;
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
     }
     .chart-card {
       background: #fff;
@@ -357,6 +470,10 @@ html <- sprintf('
       .chart-iframe {
         height: 550px;
       }
+      .tab-buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
     }
     @media (max-width: 768px) {
       .grid {
@@ -374,7 +491,9 @@ html <- sprintf('
     }
   </style>
 </head>
-<body>
+  <body>
+
+  %s
 
   %s
 
@@ -420,12 +539,34 @@ html <- sprintf('
         lightbox.classList.remove("active");
       }
     });
-    
+
     // Close the lightbox with Escape key
     document.addEventListener("keydown", function(e) {
       if (e.key === "Escape" && lightbox.classList.contains("active")) {
         lightbox.classList.remove("active");
       }
+    });
+
+    // Tab switching for future meetings
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.target;
+
+        tabButtons.forEach(btn => {
+          btn.classList.remove('active');
+          btn.setAttribute('aria-pressed', 'false');
+        });
+
+        tabContents.forEach(content => {
+          content.classList.toggle('active', content.id === `tab-${target}`);
+        });
+
+        button.classList.add('active');
+        button.setAttribute('aria-pressed', 'true');
+      });
     });
   </script>
 
@@ -434,12 +575,15 @@ html <- sprintf('
 ',
   analytics_snippet,
 
+  intro_paragraph,
+
   interactive_line_section,
   area_chart_section,
   future_meeting_section,
-  
-  line_prob_section,
-  intro_paragraph
+
+  past_meeting_section,
+
+  past_line_section
 )
 
 # Write output
