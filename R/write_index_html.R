@@ -548,24 +548,24 @@ html <- sprintf('
     });
 
     // Tab switching for future meetings
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
+    const tabButtons = document.querySelectorAll(".tab-button");
+    const tabContents = document.querySelectorAll(".tab-content");
 
     tabButtons.forEach(button => {
-      button.addEventListener('click', () => {
+      button.addEventListener("click", () => {
         const target = button.dataset.target;
 
         tabButtons.forEach(btn => {
-          btn.classList.remove('active');
-          btn.setAttribute('aria-pressed', 'false');
+          btn.classList.remove("active");
+          btn.setAttribute("aria-pressed", "false");
         });
 
         tabContents.forEach(content => {
-          content.classList.toggle('active', content.id === `tab-${target}`);
+          content.classList.toggle("active", content.id === `tab-${target}`);
         });
 
-        button.classList.add('active');
-        button.setAttribute('aria-pressed', 'true');
+        button.classList.add("active");
+        button.setAttribute("aria-pressed", "true");
       });
     });
   </script>
