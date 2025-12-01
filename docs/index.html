@@ -27,6 +27,38 @@
       max-width: 2200px;
       margin: 0 auto;
     }
+    .tab-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 20px 0 30px 0;
+      flex-wrap: wrap;
+    }
+    .tab-button {
+      padding: 10px 18px;
+      border: 1px solid #d1d5db;
+      background: #f8fafc;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #334155;
+      transition: all 0.2s ease;
+    }
+    .tab-button:hover {
+      background: #e2e8f0;
+    }
+    .tab-button.active {
+      background: #2563eb;
+      color: #fff;
+      border-color: #1d4ed8;
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
     .chart-card {
       background: #fff;
       border-radius: 10px;
@@ -92,6 +124,10 @@
       .chart-iframe {
         height: 550px;
       }
+      .tab-buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
     }
     @media (max-width: 768px) {
       .grid {
@@ -109,7 +145,7 @@
     }
   </style>
 </head>
-<body>
+  <body>
 
   
 <!-- Google tag (gtag.js) -->
@@ -121,6 +157,12 @@
 
   gtag("config", "G-5J5TP6ZN7H");
 </script>
+
+  
+  <p style="max-width: 900px; margin: 0 auto 30px auto; text-align: center; font-size: 1.1rem; color: #444;">
+    This website is built by Zac Gross and provides a daily snapshot of <strong>futures-implied expectations</strong> for the Reserve Bank of Australia's cash rate,
+    based on ASX 30-day interbank futures data and historical data. These expectations update automatically based off code by Matt Cowgill.
+  </p>
 
   
   <h1 style="margin-top:60px; text-align:center;">
@@ -153,8 +195,15 @@
 
   
 
-  <h1>Cash Rate Target Probabilities By RBA Meeting</h1>
-<div class="grid"> <div class="chart-card">
+  
+  <section>
+    <h1>Cash Rate Target Probabilities By RBA Meeting</h1>
+    <div class="tab-buttons" role="tablist">
+      <button class="tab-button active" data-target="heatmap" aria-pressed="true">Heatmaps</button>
+      <button class="tab-button" data-target="line" aria-pressed="false">Line Charts</button>
+      <button class="tab-button" data-target="area" aria-pressed="false">Area Charts</button>
+    </div>
+    <div class="tab-content active" id="tab-heatmap"><div class="grid"> <div class="chart-card">
   <iframe src="meetings/daily_heatmap_2025-12-08.html" class="chart-iframe" frameborder="0"></iframe>
 </div>
 <div class="chart-card">
@@ -180,10 +229,8 @@
 </div>
 <div class="chart-card">
   <iframe src="meetings/daily_heatmap_2026-12-07.html" class="chart-iframe" frameborder="0"></iframe>
-</div> </div>
-
-  <h1 style="margin-top:60px; text-align:center;">Probability Lines by Meeting</h1>
-<div class="grid"> <div class="chart-card">
+</div> </div></div>
+    <div class="tab-content" id="tab-line"><div class="grid"> <div class="chart-card">
   <h3 style="margin: 0 0 15px 0; color: #2c3e50;">09 December 2025</h3>
   <img src="meeting_lines/line_probabilities_meeting_2025-12-09.png" alt="Meeting probability lines for 09 December 2025" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
 </div>
@@ -214,13 +261,184 @@
 <div class="chart-card">
   <h3 style="margin: 0 0 15px 0; color: #2c3e50;">08 December 2026</h3>
   <img src="meeting_lines/line_probabilities_meeting_2026-12-08.png" alt="Meeting probability lines for 08 December 2026" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div> </div></div>
+    <div class="tab-content" id="tab-area"><div class="grid"> <div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">09 December 2025</h3>
+  <img src="meetings/area_all_moves_2025-12-09.png" alt="Meeting area chart for 09 December 2025" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">03 February 2026</h3>
+  <img src="meetings/area_all_moves_2026-02-03.png" alt="Meeting area chart for 03 February 2026" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">17 March 2026</h3>
+  <img src="meetings/area_all_moves_2026-03-17.png" alt="Meeting area chart for 17 March 2026" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">05 May 2026</h3>
+  <img src="meetings/area_all_moves_2026-05-05.png" alt="Meeting area chart for 05 May 2026" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">16 June 2026</h3>
+  <img src="meetings/area_all_moves_2026-06-16.png" alt="Meeting area chart for 16 June 2026" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">11 August 2026</h3>
+  <img src="meetings/area_all_moves_2026-08-11.png" alt="Meeting area chart for 11 August 2026" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">29 September 2026</h3>
+  <img src="meetings/area_all_moves_2026-09-29.png" alt="Meeting area chart for 29 September 2026" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">03 November 2026</h3>
+  <img src="meetings/area_all_moves_2026-11-03.png" alt="Meeting area chart for 03 November 2026" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">08 December 2026</h3>
+  <img src="meetings/area_all_moves_2026-12-08.png" alt="Meeting area chart for 08 December 2026" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div> </div></div>
+  </section>
+
+  <h1 style="margin-top:60px; text-align:center;">Previous Meetings</h1>
+<div class="grid"> <div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">03 November 2025</h3>
+  <img src="meetings/daily_heatmap_2025-11-03.png" alt="03 November 2025" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">29 September 2025</h3>
+  <img src="meetings/daily_heatmap_2025-09-29.png" alt="29 September 2025" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">11 August 2025</h3>
+  <img src="meetings/daily_heatmap_2025-08-11.png" alt="11 August 2025" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">07 July 2025</h3>
+  <img src="meetings/daily_heatmap_2025-07-07.png" alt="07 July 2025" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">19 May 2025</h3>
+  <img src="meetings/daily_heatmap_2025-05-19.png" alt="19 May 2025" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">31 March 2025</h3>
+  <img src="meetings/daily_heatmap_2025-03-31.png" alt="31 March 2025" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">17 February 2025</h3>
+  <img src="meetings/daily_heatmap_2025-02-17.png" alt="17 February 2025" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">09 December 2024</h3>
+  <img src="meetings/daily_heatmap_2024-12-09.png" alt="09 December 2024" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">04 November 2024</h3>
+  <img src="meetings/daily_heatmap_2024-11-04.png" alt="04 November 2024" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">23 September 2024</h3>
+  <img src="meetings/daily_heatmap_2024-09-23.png" alt="23 September 2024" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">05 August 2024</h3>
+  <img src="meetings/daily_heatmap_2024-08-05.png" alt="05 August 2024" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">17 June 2024</h3>
+  <img src="meetings/daily_heatmap_2024-06-17.png" alt="17 June 2024" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">06 May 2024</h3>
+  <img src="meetings/daily_heatmap_2024-05-06.png" alt="06 May 2024" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">18 March 2024</h3>
+  <img src="meetings/daily_heatmap_2024-03-18.png" alt="18 March 2024" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">05 February 2024</h3>
+  <img src="meetings/daily_heatmap_2024-02-05.png" alt="05 February 2024" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">04 December 2023</h3>
+  <img src="meetings/daily_heatmap_2023-12-04.png" alt="04 December 2023" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">06 November 2023</h3>
+  <img src="meetings/daily_heatmap_2023-11-06.png" alt="06 November 2023" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">02 October 2023</h3>
+  <img src="meetings/daily_heatmap_2023-10-02.png" alt="02 October 2023" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">04 September 2023</h3>
+  <img src="meetings/daily_heatmap_2023-09-04.png" alt="04 September 2023" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">31 July 2023</h3>
+  <img src="meetings/daily_heatmap_2023-07-31.png" alt="31 July 2023" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">03 July 2023</h3>
+  <img src="meetings/daily_heatmap_2023-07-03.png" alt="03 July 2023" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">05 June 2023</h3>
+  <img src="meetings/daily_heatmap_2023-06-05.png" alt="05 June 2023" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">01 May 2023</h3>
+  <img src="meetings/daily_heatmap_2023-05-01.png" alt="01 May 2023" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">03 April 2023</h3>
+  <img src="meetings/daily_heatmap_2023-04-03.png" alt="03 April 2023" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">06 March 2023</h3>
+  <img src="meetings/daily_heatmap_2023-03-06.png" alt="06 March 2023" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">06 February 2023</h3>
+  <img src="meetings/daily_heatmap_2023-02-06.png" alt="06 February 2023" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">05 December 2022</h3>
+  <img src="meetings/daily_heatmap_2022-12-05.png" alt="05 December 2022" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">31 October 2022</h3>
+  <img src="meetings/daily_heatmap_2022-10-31.png" alt="31 October 2022" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">03 October 2022</h3>
+  <img src="meetings/daily_heatmap_2022-10-03.png" alt="03 October 2022" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">05 September 2022</h3>
+  <img src="meetings/daily_heatmap_2022-09-05.png" alt="05 September 2022" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">01 August 2022</h3>
+  <img src="meetings/daily_heatmap_2022-08-01.png" alt="01 August 2022" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">04 July 2022</h3>
+  <img src="meetings/daily_heatmap_2022-07-04.png" alt="04 July 2022" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">06 June 2022</h3>
+  <img src="meetings/daily_heatmap_2022-06-06.png" alt="06 June 2022" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
+</div>
+<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">02 May 2022</h3>
+  <img src="meetings/daily_heatmap_2022-05-02.png" alt="02 May 2022" class="expandable" style="width: 100%; height: auto; border-radius: 6px;" />
 </div> </div>
 
   
-  <p style="max-width: 900px; margin: 0 auto 30px auto; text-align: center; font-size: 1.1rem; color: #444;">
-    This website is built by Zac Gross and provides a daily snapshot of <strong>futures-implied expectations</strong> for the Reserve Bank of Australia's cash rate,
-    based on ASX 30-day interbank futures data and historical data. These expectations update automatically based off code by Matt Cowgill.
-  </p>
   
   <!-- Lightbox Modal -->
   <div id="lightbox" class="lightbox">
@@ -254,12 +472,34 @@
         lightbox.classList.remove("active");
       }
     });
-    
+
     // Close the lightbox with Escape key
     document.addEventListener("keydown", function(e) {
       if (e.key === "Escape" && lightbox.classList.contains("active")) {
         lightbox.classList.remove("active");
       }
+    });
+
+    // Tab switching for future meetings
+    const tabButtons = document.querySelectorAll(".tab-button");
+    const tabContents = document.querySelectorAll(".tab-content");
+
+    tabButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const target = button.dataset.target;
+
+        tabButtons.forEach(btn => {
+          btn.classList.remove("active");
+          btn.setAttribute("aria-pressed", "false");
+        });
+
+        tabContents.forEach(content => {
+          content.classList.toggle("active", content.id === `tab-${target}`);
+        });
+
+        button.classList.add("active");
+        button.setAttribute("aria-pressed", "true");
+      });
     });
   </script>
 
