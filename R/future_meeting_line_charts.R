@@ -269,7 +269,7 @@ for (mt in future_meetings) {
   }
 
   end_time <- max(meeting_df$scrape_time)
-  start_time <- max(min(meeting_df$scrape_time), end_time %m-% months(2))
+  start_time <- min(meeting_df$scrape_time)
 
   line_plot <- ggplot(meeting_df, aes(x = scrape_time + hours(hours_tz), y = probability, color = move)) +
     geom_line(linewidth = 1) +
