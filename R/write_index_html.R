@@ -503,7 +503,7 @@ html <- sprintf('
 
   %s
 
-  %s
+  
 
   %s
   
@@ -581,7 +581,6 @@ html <- sprintf('
   area_chart_section,
   future_meeting_section,
 
-  past_meeting_section,
 
   past_line_section
 )
