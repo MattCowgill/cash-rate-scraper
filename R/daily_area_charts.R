@@ -487,16 +487,61 @@ for (mt in future_meetings_all) {
     
     temp_filename <- paste0(filename, ".tmp")
     ggplot2::ggsave(filename = temp_filename, plot = area_mt, width = 12, height = 5, dpi = 300, device = "png")
-    
+
     if (file.exists(temp_filename)) {
       file.rename(temp_filename, filename)
       cat("✓ Saved from temp file:", filename, "\n")
     } else {
       cat("✗ Temp file was not created\n")
     }
-    
+
   }, error = function(e) {
     cat("✗ Error:", e$message, "\n")
+    cat("↪ Retrying with simplified plot (geom_area only) to bypass rendering issue...\n")
+
+    safe_plot <- ggplot2::ggplot(
+      df_mt,
+      ggplot2::aes(x = scrape_date, y = probability, fill = move)
+    ) +
+      ggplot2::geom_area(position = "stack", colour = NA) +
+      ggplot2::scale_fill_manual(
+        values = fill_map,
+        breaks = legend_breaks,
+        drop = FALSE,
+        name = "Cash Rate",
+        guide = ggplot2::guide_legend(override.aes = list(alpha = 1))
+      ) +
+      ggplot2::scale_x_date(
+        limits = c(start_xlim_mt, end_xlim_mt),
+        breaks = breaks_vec,
+        labels = date_labels,
+        expand = c(0, 0)
+      ) +
+      ggplot2::scale_y_continuous(
+        limits = c(0, 1),
+        labels = scales::percent_format(accuracy = 1),
+        expand = c(0, 0)
+      ) +
+      ggplot2::labs(
+        title = paste("Cash Rate Scenarios for Meeting on", fmt_date(meeting_date_proper)),
+        subtitle = "Daily probability distribution (simplified rendering)",
+        x = "Date",
+        y = "Probability"
+      ) +
+      ggplot2::theme_bw()
+
+    tryCatch({
+      ggplot2::ggsave(filename = temp_filename, plot = safe_plot, width = 12, height = 5, dpi = 300, device = "png")
+
+      if (file.exists(temp_filename)) {
+        file.rename(temp_filename, filename)
+        cat("✓ Simplified plot saved:", filename, "\n")
+      } else {
+        cat("✗ Simplified temp file was not created\n")
+      }
+    }, error = function(e2) {
+      cat("✗ Simplified plot also failed:", e2$message, "\n")
+    })
   })
 }
 
