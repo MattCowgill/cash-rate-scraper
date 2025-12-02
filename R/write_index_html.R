@@ -261,7 +261,7 @@ if (length(line_prob_files) > 0) {
 # Area charts (all moves) per meeting
 area_meeting_files <- list.files(
   "docs/meetings",
-  pattern = "^daily_area_\\d{4}-\\d{2}-\\d{2}\\.png$",
+  pattern = "^area_all_moves_\\d{4}-\\d{2}-\\d{2}\\.png$",
   full.names = FALSE
 )
 
