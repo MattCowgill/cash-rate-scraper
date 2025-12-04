@@ -182,28 +182,6 @@ if (file.exists("docs/line_interactive.html")) {
   </p>'
 }
 
-area_chart_section <- ""
-if (file.exists("docs/area.png")) {
-  area_chart_section <- '
-  <div style="
-      display: flex;
-      justify-content: center;
-      margin: 40px 0;
-    ">
-    <img 
-      src="area.png" 
-      alt="Next RBA Meeting Area Chart"
-      class="expandable"
-      style="
-        width: 80%;
-        height: auto;
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      "
-    />
-  </div>'
-}
-
 # Future meetings section
 # Line probability charts by meeting (future and past)
 line_prob_files <- list.files(
@@ -290,6 +268,65 @@ if (length(area_meeting_files) > 0) {
     },
     character(1)
   )
+}
+
+area_chart_section <- ""
+if (length(area_meeting_files) > 0) {
+  area_dates <- str_match(area_meeting_files, "area_all_moves_(\\d{4}-\\d{2}-\\d{2})\\.png")[, 2]
+  area_dates_obj <- as.Date(area_dates, format = "%Y-%m-%d")
+
+  # Pick the earliest upcoming meeting; if none are upcoming, use the most recent past
+  upcoming_idx <- which(area_dates_obj >= current_date)
+  featured_idx <- if (length(upcoming_idx) > 0) upcoming_idx[1] else length(area_meeting_files)
+
+  featured_area_path <- file.path("meetings", area_meeting_files[featured_idx])
+  featured_area_label <- format(area_dates_obj[featured_idx], "%d %B %Y")
+
+  area_chart_section <- sprintf('
+  <div style="
+      display: flex;
+      justify-content: center;
+      margin: 40px 0;
+    ">
+    <img
+      src="%s"
+      alt="Meeting area chart for %s"
+      class="expandable"
+      style="
+        width: 80%%;
+        height: auto;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      "
+    />
+  </div>
+  <p style="max-width: 800px; margin: 0 auto 30px auto; text-align: center; font-size: 1rem; color: #555; line-height: 1.6;">
+    Market-implied distribution of potential cash rate outcomes for the %s RBA meeting.
+  </p>',
+    featured_area_path,
+    featured_area_label,
+    featured_area_label
+  )
+} else if (file.exists("docs/area.png")) {
+  # Fallback to legacy static image if no meeting-specific charts exist yet
+  area_chart_section <- '
+  <div style="
+      display: flex;
+      justify-content: center;
+      margin: 40px 0;
+    ">
+    <img
+      src="area.png"
+      alt="Next RBA Meeting Area Chart"
+      class="expandable"
+      style="
+        width: 80%;
+        height: auto;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      "
+    />
+  </div>'
 }
 
 # Future meetings visualization tabs
