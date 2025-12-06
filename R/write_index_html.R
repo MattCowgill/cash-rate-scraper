@@ -236,107 +236,6 @@ if (length(line_prob_files) > 0) {
   )
 }
 
-# Area charts (all moves) per meeting
-area_meeting_files <- list.files(
-  "docs/meetings",
-  pattern = "^area_all_moves_\\d{4}-\\d{2}-\\d{2}\\.png$",
-  full.names = FALSE
-)
-
-future_area_cards <- character(0)
-if (length(area_meeting_files) > 0) {
-  area_dates <- str_match(area_meeting_files, "area_all_moves_(\\d{4}-\\d{2}-\\d{2})\\.png")[, 2]
-  area_dates_obj <- as.Date(area_dates, format = "%Y-%m-%d")
-
-  area_order_idx <- order(area_dates_obj, decreasing = FALSE, na.last = TRUE)
-  area_meeting_files <- area_meeting_files[area_order_idx]
-  area_dates_obj <- area_dates_obj[area_order_idx]
-  area_meeting_paths <- file.path("docs/meetings", area_meeting_files)
-  area_mtime <- file.info(area_meeting_paths)$mtime
-
-  future_area_cards <- vapply(
-    which(area_dates_obj >= current_date),
-    function(i) {
-      png_path <- file.path("meetings", area_meeting_files[i])
-      date_label <- format(area_dates_obj[i], "%d %B %Y")
-
-      sprintf(
-        '<div class="chart-card">
-  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">%s</h3>
-  <img src="%s" alt="Meeting area chart for %s" class="expandable" style="width: 100%%; height: auto; border-radius: 6px;" />
-</div>',
-        date_label, png_path, date_label
-      )
-    },
-    character(1)
-  )
-}
-
-area_chart_section <- ""
-if (length(area_meeting_files) > 0) {
-  area_dates <- str_match(area_meeting_files, "area_all_moves_(\\d{4}-\\d{2}-\\d{2})\\.png")[, 2]
-  area_dates_obj <- as.Date(area_dates, format = "%Y-%m-%d")
-
-  # Pick the most recently updated chart file to ensure the featured image
-  # reflects the freshest data. If mtimes are unavailable (unlikely), fall
-  # back to the earliest upcoming meeting; if none, use the most recent past.
-  if (all(!is.na(area_mtime))) {
-    featured_idx <- which.max(area_mtime)
-  } else {
-    upcoming_idx <- which(area_dates_obj >= current_date)
-    featured_idx <- if (length(upcoming_idx) > 0) upcoming_idx[1] else length(area_meeting_files)
-  }
-
-  featured_area_path <- file.path("meetings", area_meeting_files[featured_idx])
-  featured_area_label <- format(area_dates_obj[featured_idx], "%d %B %Y")
-
-  area_chart_section <- sprintf('
-  <div style="
-      display: flex;
-      justify-content: center;
-      margin: 40px 0;
-    ">
-    <img
-      src="%s"
-      alt="Meeting area chart for %s"
-      class="expandable"
-      style="
-        width: 80%%;
-        height: auto;
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      "
-    />
-  </div>
-  <p style="max-width: 800px; margin: 0 auto 30px auto; text-align: center; font-size: 1rem; color: #555; line-height: 1.6;">
-    Market-implied distribution of potential cash rate outcomes for the %s RBA meeting.
-  </p>',
-    featured_area_path,
-    featured_area_label,
-    featured_area_label
-  )
-} else if (file.exists("docs/area.png")) {
-  # Fallback to legacy static image if no meeting-specific charts exist yet
-  area_chart_section <- '
-  <div style="
-      display: flex;
-      justify-content: center;
-      margin: 40px 0;
-    ">
-    <img
-      src="area.png"
-      alt="Next RBA Meeting Area Chart"
-      class="expandable"
-      style="
-        width: 80%;
-        height: auto;
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      "
-    />
-  </div>'
-}
-
 # Future meetings visualization tabs
 heatmap_tab <- if (length(future_cards) > 0) {
   paste('<div class="grid">', paste(future_cards, collapse = "\n"), '</div>')
@@ -350,27 +249,18 @@ line_tab <- if (length(future_line_cards) > 0) {
   '<p style="text-align:center;">No upcoming RBA meeting line charts available.</p>'
 }
 
-area_tab <- if (length(future_area_cards) > 0) {
-  paste('<div class="grid">', paste(future_area_cards, collapse = "\n"), '</div>')
-} else {
-  '<p style="text-align:center;">No upcoming RBA meeting area charts available.</p>'
-}
-
 future_meeting_section <- sprintf('
   <section>
     <h1>Cash Rate Target Probabilities By RBA Meeting</h1>
     <div class="tab-buttons" role="tablist">
       <button class="tab-button active" data-target="heatmap" aria-pressed="true">Heatmaps</button>
       <button class="tab-button" data-target="line" aria-pressed="false">Line Charts</button>
-      <button class="tab-button" data-target="area" aria-pressed="false">Area Charts</button>
     </div>
     <div class="tab-content active" id="tab-heatmap">%s</div>
     <div class="tab-content" id="tab-line">%s</div>
-    <div class="tab-content" id="tab-area">%s</div>
   </section>',
   heatmap_tab,
-  line_tab,
-  area_tab
+  line_tab
 )
 
 # Past meetings section
@@ -548,10 +438,6 @@ html <- sprintf('
 
   %s
 
-  
-
-  %s
-  
   <!-- Lightbox Modal -->
   <div id="lightbox" class="lightbox">
     <span class="lightbox-close">&times;</span>
@@ -623,7 +509,6 @@ html <- sprintf('
   intro_paragraph,
 
   interactive_line_section,
-  area_chart_section,
   future_meeting_section,
 
 
