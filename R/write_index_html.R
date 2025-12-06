@@ -251,6 +251,8 @@ if (length(area_meeting_files) > 0) {
   area_order_idx <- order(area_dates_obj, decreasing = FALSE, na.last = TRUE)
   area_meeting_files <- area_meeting_files[area_order_idx]
   area_dates_obj <- area_dates_obj[area_order_idx]
+  area_meeting_paths <- file.path("docs/meetings", area_meeting_files)
+  area_mtime <- file.info(area_meeting_paths)$mtime
 
   future_area_cards <- vapply(
     which(area_dates_obj >= current_date),
@@ -275,9 +277,15 @@ if (length(area_meeting_files) > 0) {
   area_dates <- str_match(area_meeting_files, "area_all_moves_(\\d{4}-\\d{2}-\\d{2})\\.png")[, 2]
   area_dates_obj <- as.Date(area_dates, format = "%Y-%m-%d")
 
-  # Pick the earliest upcoming meeting; if none are upcoming, use the most recent past
-  upcoming_idx <- which(area_dates_obj >= current_date)
-  featured_idx <- if (length(upcoming_idx) > 0) upcoming_idx[1] else length(area_meeting_files)
+  # Pick the most recently updated chart file to ensure the featured image
+  # reflects the freshest data. If mtimes are unavailable (unlikely), fall
+  # back to the earliest upcoming meeting; if none, use the most recent past.
+  if (all(!is.na(area_mtime))) {
+    featured_idx <- which.max(area_mtime)
+  } else {
+    upcoming_idx <- which(area_dates_obj >= current_date)
+    featured_idx <- if (length(upcoming_idx) > 0) upcoming_idx[1] else length(area_meeting_files)
+  }
 
   featured_area_path <- file.path("meetings", area_meeting_files[featured_idx])
   featured_area_label <- format(area_dates_obj[featured_idx], "%d %B %Y")
