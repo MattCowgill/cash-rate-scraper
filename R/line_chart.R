@@ -778,11 +778,16 @@ relevant_releases <- abs_releases %>%
   filter(datetime >= start_xlim & datetime <= end_xlim)
 
 # Build release segment data for interactive plot
+# Use explicit x/xend/y/yend columns so ggplotly can reliably
+# evaluate the aesthetics during conversion to plotly.
 release_segments <- relevant_releases %>%
   transmute(
     dataset,
-    plot_time = datetime,
-    tooltip = paste0(
+    x = datetime,
+    xend = datetime,
+    y = 0,
+    yend = 1,
+    text = paste0(
       "<b>", dataset, "</b><br>",
       format(datetime, "%d %b %Y<br>%H:%M AEST")
     )
@@ -793,12 +798,12 @@ line_int_complete <- line_int_base +
   geom_segment(
     data = release_segments,
     aes(
-      x = plot_time,
-      xend = plot_time,
-      y = 0,
-      yend = 1,
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend,
       colour = dataset,
-      text = tooltip
+      text = text
     ),
     inherit.aes = FALSE,
     linetype = "dashed",
