@@ -91,7 +91,11 @@ now_melb <- now(tzone = "Australia/Melbourne")
 cutoff_date <- if (now_melb < cutoff_time) Sys.Date() - 1 else Sys.Date()
 
 all_times <- sort(unique(cash_rate$scrape_time))
-scrapes <- all_times[all_times >= cutoff_date | all_times > last_meeting]
+
+# Use every available scrape to maximize history in the charts instead of
+# starting at the most recent meeting date (which can omit data when a meeting
+# happens today).
+scrapes <- all_times
 
 # ----------------------------------------------------------------------------
 # Implied rate calculations for every scrape × meeting
