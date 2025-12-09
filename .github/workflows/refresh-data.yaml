@@ -47,28 +47,35 @@ jobs:
         run: Rscript -e 'source(here::here("R","scrape_cash_rate.R"), echo = TRUE)'
 
       - name: Make line graph
+        continue-on-error: true
         run: Rscript -e 'source(here::here("R","line_chart.R"), echo = TRUE)'
 
       - name: Make multi-meeting line graphs
+        continue-on-error: true
         run: Rscript -e 'source(here::here("R","future_meeting_line_charts.R"), echo = TRUE)'
 
       - name: Make heatmaps graph
         if: github.event_name != 'workflow_dispatch'
+        continue-on-error: true
         run: Rscript -e 'source(here::here("R","heat_maps.R"), echo = TRUE)'
-        
+
       - name: Make area graph
         if: github.event_name != 'workflow_dispatch'
+        continue-on-error: true
         run: Rscript -e 'source(here::here("R","daily_area_charts.R"), echo = TRUE)'
 
       - name: Make area graph
         if: github.event_name != 'workflow_dispatch'
-        run: Rscript -e 'source(here::here("R","area_charts.R"), echo = TRUE)'        
-        
+        continue-on-error: true
+        run: Rscript -e 'source(here::here("R","area_charts.R"), echo = TRUE)'
+
       - name: Make historical heatmaps graph (monthly)
         if: github.event_name == 'schedule' && github.event.schedule == '0 0 1 * *'
+        continue-on-error: true
         run: Rscript -e 'source(here::here("R","heat_maps_old.R"), echo = TRUE)'
 
       - name: Generate index.html from charts
+        continue-on-error: true
         run: Rscript R/write_index_html.R
 
       - name: Commit
