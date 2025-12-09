@@ -129,7 +129,7 @@ abs_releases <- tribble(
   "CPI Indicator", ymd_hm("2025-09-24 11:30", tz = "Australia/Melbourne"),
   
 "CPI", ymd_hm("2025-11-26 11:30", tz = "Australia/Melbourne"),
-"CPI", ymd_hm("2025-12-31 11:30", tz = "Australia/Melbourne"),
+"CPI", ymd_hm("2026-01-07 11:30", tz = "Australia/Melbourne"),
 "CPI", ymd_hm("2026-01-28 11:30", tz = "Australia/Melbourne"),
 "CPI", ymd_hm("2026-02-25 11:30", tz = "Australia/Melbourne"),
 "CPI", ymd_hm("2026-03-25 11:30", tz = "Australia/Melbourne"),
