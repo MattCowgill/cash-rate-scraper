@@ -69,6 +69,10 @@ jobs:
         continue-on-error: true
         run: Rscript -e 'source(here::here("R","area_charts.R"), echo = TRUE)'
 
+      - name: Make actual vs implied graph
+        continue-on-error: true
+        run: Rscript -e 'source(here::here("R","actual_vs_implied.R"), echo = TRUE)'
+
       - name: Make historical heatmaps graph (monthly)
         if: github.event_name == 'schedule' && github.event.schedule == '0 0 1 * *'
         continue-on-error: true
