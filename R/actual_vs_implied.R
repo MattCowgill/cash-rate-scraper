@@ -222,9 +222,9 @@ latest_event_date <- forecast_snapshots %>%
     expand = c(0.01, 0)
   ) +
   labs(
-    title = "Forecast Paths Captured on Key Event Dates",
+    title = "Cash Rate Forecast Paths",
     subtitle = paste0(
-      "Forecast curves coloured by scrape date (latest highlighted) up to ",
+      "Forecasts on select dates up to ",
       format(latest_event_date, "%d %B %Y")
     ),
     x = "Futures contract expiry",
