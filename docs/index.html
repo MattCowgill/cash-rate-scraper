@@ -72,6 +72,52 @@
       border-radius: 6px;
       background: white;
     }
+    .section {
+      max-width: 1400px;
+      margin: 60px auto;
+      padding: 0 10px;
+    }
+    .section-title {
+      text-align: center;
+      color: #1f2937;
+      margin-bottom: 10px;
+      font-size: 1.6rem;
+    }
+    .section-description {
+      text-align: center;
+      color: #4b5563;
+      margin: 0 auto 24px auto;
+      max-width: 900px;
+      line-height: 1.6;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      align-items: start;
+    }
+    .chart-card h3 {
+      margin: 0 0 12px 0;
+      color: #1f2937;
+      font-size: 1.05rem;
+    }
+    .chart-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+    }
+    .chart-links {
+      margin-top: 10px;
+    }
+    .chart-links a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .chart-links a:hover {
+      text-decoration: underline;
+    }
     .expandable {
       cursor: pointer;
       transition: opacity 0.2s;
@@ -188,11 +234,87 @@
     ></iframe>
   </div>
   <p style="max-width: 800px; margin: 20px auto; text-align: center; font-size: 1rem; color: #555; line-height: 1.6;">
-    This chart shows the market-implied probability of different cash rate outcomes at the next RBA meeting, 
-    tracking how expectations have evolved over time based on ASX 30-day interbank futures pricing. 
-    Hover over the chart to explore daily probabilities. 
+    This chart shows the market-implied probability of different cash rate outcomes at the next RBA meeting,
+    tracking how expectations have evolved over time based on ASX 30-day interbank futures pricing.
+    Hover over the chart to explore daily probabilities.
     <a href="line.png" target="_blank" style="color: #3498db; text-decoration: none; font-weight: 500;">View static version →</a>
   </p>
+
+  <section class="section" aria-labelledby="meeting-lines-title">
+    <h2 id="meeting-lines-title" class="section-title">Probability paths for upcoming RBA meetings</h2>
+    <p class="section-description">
+      Daily snapshots of futures-implied probabilities for each scheduled meeting. Click any chart to expand.
+    </p>
+    <div class="card-grid">
+      <div class="chart-card">
+        <h3>09 December 2025</h3>
+        <img src="meeting_lines/line_probabilities_meeting_2025-12-09.png" alt="Probability paths for 09 December 2025 meeting" class="expandable" />
+      </div>
+      <div class="chart-card">
+        <h3>03 February 2026</h3>
+        <img src="meeting_lines/line_probabilities_meeting_2026-02-03.png" alt="Probability paths for 03 February 2026 meeting" class="expandable" />
+      </div>
+      <div class="chart-card">
+        <h3>17 March 2026</h3>
+        <img src="meeting_lines/line_probabilities_meeting_2026-03-17.png" alt="Probability paths for 17 March 2026 meeting" class="expandable" />
+      </div>
+      <div class="chart-card">
+        <h3>05 May 2026</h3>
+        <img src="meeting_lines/line_probabilities_meeting_2026-05-05.png" alt="Probability paths for 05 May 2026 meeting" class="expandable" />
+      </div>
+      <div class="chart-card">
+        <h3>16 June 2026</h3>
+        <img src="meeting_lines/line_probabilities_meeting_2026-06-16.png" alt="Probability paths for 16 June 2026 meeting" class="expandable" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="heatmaps-title">
+    <h2 id="heatmaps-title" class="section-title">Heatmaps for recent meetings</h2>
+    <p class="section-description">
+      View how expectations shifted each day leading into past meetings. Interactive versions are available for deeper exploration.
+    </p>
+    <div class="card-grid">
+      <div class="chart-card">
+        <h3>03 November 2025</h3>
+        <img src="meetings/daily_heatmap_2025-11-03.png" alt="Heatmap for 03 November 2025 meeting" class="expandable" />
+        <div class="chart-links">
+          <a href="meetings/daily_heatmap_2025-11-03.html" target="_blank" rel="noopener">Interactive version</a>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>29 September 2025</h3>
+        <img src="meetings/daily_heatmap_2025-09-29.png" alt="Heatmap for 29 September 2025 meeting" class="expandable" />
+        <div class="chart-links">
+          <a href="meetings/daily_heatmap_2025-09-29.html" target="_blank" rel="noopener">Interactive version</a>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>11 August 2025</h3>
+        <img src="meetings/daily_heatmap_2025-08-11.png" alt="Heatmap for 11 August 2025 meeting" class="expandable" />
+        <div class="chart-links">
+          <a href="meetings/daily_heatmap_2025-08-11.html" target="_blank" rel="noopener">Interactive version</a>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>07 July 2025</h3>
+        <img src="meetings/daily_heatmap_2025-07-07.png" alt="Heatmap for 07 July 2025 meeting" class="expandable" />
+        <div class="chart-links">
+          <a href="meetings/daily_heatmap_2025-07-07.html" target="_blank" rel="noopener">Interactive version</a>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>19 May 2025</h3>
+        <img src="meetings/daily_heatmap_2025-05-19.png" alt="Heatmap for 19 May 2025 meeting" class="expandable" />
+        <div class="chart-links">
+          <a href="meetings/daily_heatmap_2025-05-19.html" target="_blank" rel="noopener">Interactive version</a>
+        </div>
+      </div>
+    </div>
+    <p class="section-description">
+      Looking for more history? Browse the full archive on the <a href="previous-meetings.html" style="color: #2563eb; font-weight: 600; text-decoration: none;">previous meetings page</a>.
+    </p>
+  </section>
 
   <!-- Lightbox Modal -->
   <div id="lightbox" class="lightbox">
