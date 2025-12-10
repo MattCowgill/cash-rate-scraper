@@ -67,49 +67,9 @@ actual_cash_rate <- read_rba(series_id = "FIRMMCRTD") %>%
 plot_actual <- actual_cash_rate %>%
   filter(date >= min(front_month$date, na.rm = TRUE))
 
-# ------------------------------------------------------------------------------
-# 2) Build actual vs implied plot
-# ------------------------------------------------------------------------------
-
-latest_scrape <- max(front_month$date, na.rm = TRUE)
-
-actual_vs_implied_plot <- ggplot() +
-  geom_line(
-    data = plot_actual,
-    aes(x = date, y = actual_rate, color = "Actual cash rate"),
-    linewidth = 1.1
-  ) +
-  geom_line(
-    data = front_month,
-    aes(x = date, y = implied_rate, color = "Front-month implied level"),
-    linewidth = 1,
-    alpha = 0.85
-  ) +
-  scale_color_manual(
-    values = c(
-      "Actual cash rate" = "#1b9e77",
-      "Front-month implied level" = "#7570b3"
-    ),
-    name = NULL
-  ) +
-  scale_y_continuous(labels = number_format(accuracy = 0.05)) +
-  labs(
-    title = "RBA Cash Rate vs Front-Month Futures-Implied Level",
-    subtitle = paste0(
-      "Latest futures scrape: ",
-      format(latest_scrape, "%d %B %Y")
-    ),
-    x = "Date",
-    y = "Rate (%)"
-  ) +
-  theme_minimal(base_size = 12) +
-  theme(
-    plot.title = element_text(face = "bold", size = 15),
-    legend.position = "bottom"
-  )
 
 # ------------------------------------------------------------------------------
-# 3) Build historical forecast paths on key event dates
+# 2) Build historical forecast paths on key event dates
 # ------------------------------------------------------------------------------
 
 # Event schedules ---------------------------------------------------------------
@@ -212,17 +172,27 @@ latest_event_date <- forecast_snapshots %>%
   pull(event_time) %>%
   as.Date()
 
-forecast_plot <- ggplot(forecast_paths, aes(x = expiry, y = cash_rate)) +
-  geom_line(aes(group = event_label, color = event_type), alpha = 0.5) +
-  geom_point(aes(color = event_type), size = 0.7, alpha = 0.7) +
-  scale_color_manual(
-    values = c(
-      "RBA meeting" = "#1b9e77",
-      "CPI" = "#d95f02",
-      "Labour Force" = "#7570b3"
-    ),
-    name = "Event type"
-  ) +
+  forecast_plot <- ggplot() +
+    geom_line(
+      data = plot_actual,
+      aes(x = date, y = actual_rate, color = "Actual cash rate"),
+      linewidth = 1
+    ) +
+    geom_line(
+      data = forecast_paths,
+      aes(x = expiry, y = cash_rate, group = event_label, color = event_type),
+      alpha = 0.5
+    ) +
+    scale_color_manual(
+      values = c(
+        "Actual cash rate" = "#000000",
+        "RBA meeting" = "#1b9e77",
+        "CPI" = "#d95f02",
+        "Labour Force" = "#7570b3"
+      ),
+      name = "Event type",
+      breaks = c("Actual cash rate", "RBA meeting", "CPI", "Labour Force")
+    ) +
   scale_y_continuous(labels = number_format(accuracy = 0.05)) +
   labs(
     title = "Forecast Paths Captured on Key Event Dates",
@@ -242,18 +212,8 @@ forecast_plot <- ggplot(forecast_paths, aes(x = expiry, y = cash_rate)) +
 forecast_plot_interactive <- ggplotly(forecast_plot, tooltip = c("x", "y", "colour"))
 
 # ------------------------------------------------------------------------------
-# 4) Save outputs
+# 3) Save outputs
 # ------------------------------------------------------------------------------
-
-# Static actual vs implied comparison
-actual_vs_implied_path <- here("docs", "cash_rate_vs_implied.png")
-ggsave(
-  filename = actual_vs_implied_path,
-  plot = actual_vs_implied_plot,
-  width = 10,
-  height = 6,
-  dpi = 300
-)
 
 # Static forecast path overlay
 forecast_path_png <- here("docs", "cash_rate_forecast_paths.png")
@@ -273,5 +233,5 @@ saveWidget(
   selfcontained = TRUE
 )
 
-cat("Saved charts to", actual_vs_implied_path, "and", forecast_path_png, "\n")
+cat("Saved chart to", forecast_path_png, "\n")
 cat("Saved interactive chart to", forecast_path_html, "\n")
