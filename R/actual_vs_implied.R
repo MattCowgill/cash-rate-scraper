@@ -228,15 +228,32 @@ latest_event_date <- forecast_snapshots %>%
       format(latest_event_date, "%d %B %Y")
     ),
     x = "Futures contract expiry",
-    y = "Implied cash rate (%)"
+    y = "Implied cash rate (%)",
+    caption = "Forecasts include a mix of previous settlement and last trade data which can create a non-linearity along the forecast path"
   ) +
   theme_minimal(base_size = 12) +
   theme(
-    legend.position = "bottom",
-    plot.title = element_text(face = "bold", size = 15)
+    legend.position = "none",
+    plot.title = element_text(face = "bold", size = 15),
+    plot.caption = element_text(margin = margin(t = 10))
   )
 
-forecast_plot_interactive <- ggplotly(forecast_plot, tooltip = c("x", "y", "colour"))
+forecast_plot_interactive <- ggplotly(forecast_plot, tooltip = c("x", "y", "colour")) %>%
+  layout(showlegend = FALSE,
+         annotations = list(
+           list(
+             text = "Forecasts include a mix of previous settlement and last trade data which can create a non-linearity along the forecast path",
+             x = 0,
+             xref = "paper",
+             xanchor = "left",
+             y = -0.15,
+             yref = "paper",
+             yanchor = "top",
+             align = "left",
+             showarrow = FALSE,
+             font = list(size = 10)
+           )
+         ))
 
 # ------------------------------------------------------------------------------
 # 3) Save outputs
