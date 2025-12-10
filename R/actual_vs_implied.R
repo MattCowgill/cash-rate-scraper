@@ -18,6 +18,7 @@ suppressPackageStartupMessages({
   library(plotly)
   library(readrba)
   library(scales)
+  library(viridis)
   library(stringr)
   library(tibble)
   library(tidyr)
@@ -167,6 +168,23 @@ forecast_paths <- forecast_snapshots %>%
 forecast_paths <- forecast_paths %>%
   filter(expiry <= as.Date(scrape_time) + years(2))
 
+latest_scrape_date <- forecast_paths %>%
+  summarise(latest = max(as.Date(scrape_time), na.rm = TRUE)) %>%
+  pull(latest)
+
+x_start <- latest_scrape_date - years(1)
+x_end <- latest_scrape_date + months(18)
+
+plot_actual_filtered <- plot_actual %>%
+  filter(date >= x_start)
+
+forecast_paths_window <- forecast_paths %>%
+  mutate(scrape_date = as.Date(scrape_time)) %>%
+  filter(expiry >= x_start, expiry <= x_end)
+
+latest_path <- forecast_paths_window %>%
+  filter(scrape_time == max(scrape_time))
+
 latest_event_date <- forecast_snapshots %>%
   slice_max(event_time, n = 1, with_ties = FALSE) %>%
   pull(event_time) %>%
@@ -174,30 +192,39 @@ latest_event_date <- forecast_snapshots %>%
 
   forecast_plot <- ggplot() +
     geom_line(
-      data = plot_actual,
-      aes(x = date, y = actual_rate, color = "Actual cash rate"),
-      linewidth = 1
+      data = plot_actual_filtered,
+      aes(x = date, y = actual_rate),
+      linewidth = 1,
+      color = "#2b2b2b"
     ) +
     geom_line(
-      data = forecast_paths,
-      aes(x = expiry, y = cash_rate, group = event_label, color = event_type),
+      data = forecast_paths_window,
+      aes(x = expiry, y = cash_rate, group = scrape_time, color = scrape_date),
       alpha = 0.5
     ) +
-    scale_color_manual(
-      values = c(
-        "Actual cash rate" = "#000000",
-        "RBA meeting" = "#1b9e77",
-        "CPI" = "#d95f02",
-        "Labour Force" = "#7570b3"
-      ),
-      name = "Event type",
-      breaks = c("Actual cash rate", "RBA meeting", "CPI", "Labour Force")
+    geom_line(
+      data = latest_path,
+      aes(x = expiry, y = cash_rate, group = scrape_time),
+      color = "black",
+      linetype = "dashed",
+      linewidth = 0.9
+    ) +
+    scale_color_gradientn(
+      colors = viridis(9),
+      name = "Scrape date",
+      guide = guide_colorbar(barheight = unit(5, "cm"), barwidth = unit(0.4, "cm"))
     ) +
   scale_y_continuous(labels = number_format(accuracy = 0.05)) +
+  scale_x_date(
+    limits = c(x_start, x_end),
+    date_labels = "%b %Y",
+    date_breaks = "2 months",
+    expand = c(0.01, 0)
+  ) +
   labs(
     title = "Forecast Paths Captured on Key Event Dates",
     subtitle = paste0(
-      "Forecast curves from RBA meetings, CPI releases, and Labour Force releases up to ",
+      "Forecast curves coloured by scrape date (latest highlighted) up to ",
       format(latest_event_date, "%d %B %Y")
     ),
     x = "Futures contract expiry",
