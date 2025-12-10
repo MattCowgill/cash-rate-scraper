@@ -516,7 +516,10 @@ if (nrow(top3_df) == 0) {
 }
 
 # Set x-axis limits for line chart
-start_xlim <- min(top3_df$scrape_time) + hours(hours_tz)
+start_xlim <- max(
+  min(top3_df$scrape_time) + hours(hours_tz),
+  as.POSIXct(today_melb %m-% months(12), tz = "Australia/Melbourne") + hours(hours_tz)
+)
 end_xlim <- as.POSIXct(next_meeting, tz = "Australia/Melbourne") + hours(hours_tz+7)
 
 # ==============================================================================
