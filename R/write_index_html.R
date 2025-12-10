@@ -45,15 +45,19 @@ html_basenames <- list.files(
 # Get current date
 current_date <- Sys.Date()
 
-# Sort and prepare future meetings only
+# Sort and separate into future and past meetings
 future_cards <- character(0)
+past_cards <- character(0)
 
 if (length(html_basenames) > 0) {
   dates_chr <- str_match(html_basenames, "daily_heatmap_(\\d{4}-\\d{2}-\\d{2})\\.html")[, 2]
   dates_obj <- as.Date(dates_chr, format = "%Y-%m-%d")
   
-  # Filter to future meetings (earliest first)
+  # Separate future and past
   future_idx <- dates_obj >= current_date
+  past_idx <- dates_obj < current_date
+  
+# Sort future meetings (earliest first)
   if (any(future_idx)) {
     future_files <- html_basenames[future_idx]
     future_dates <- dates_obj[future_idx]
@@ -76,6 +80,46 @@ if (length(html_basenames) > 0) {
     )
   }
   
+  # Sort past meetings (most recent first) - now as static images
+  if (any(past_idx)) {
+    past_files <- html_basenames[past_idx]
+    past_dates <- dates_obj[past_idx]
+    past_ord <- order(past_dates, decreasing = TRUE, na.last = TRUE)
+    past_files <- past_files[past_ord]
+    past_dates <- past_dates[past_ord]
+    
+past_cards <- vapply(
+      seq_along(past_files),
+      function(i) {
+        # Look for corresponding PNG file
+        png_file <- sub("\\.html$", ".png", past_files[i])
+        png_path <- file.path("meetings", png_file)
+        date_label <- format(past_dates[i], "%d %B %Y")
+        
+        # Check if PNG exists, otherwise fall back to iframe
+        if (file.exists(file.path("docs", png_path))) {
+          sprintf(
+            '<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">%s</h3>
+  <img src="%s" alt="%s" class="expandable" style="width: 100%%; height: auto; border-radius: 6px;" />
+</div>', 
+            date_label, png_path, date_label
+          )
+        } else {
+          # Fallback to iframe if PNG doesn't exist
+          file <- file.path("meetings", past_files[i])
+          sprintf(
+            '<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">%s</h3>
+  <iframe src="%s" class="chart-iframe" frameborder="0"></iframe>
+</div>', 
+            date_label, file
+          )
+        }
+      },
+      character(1)
+    )
+  }
 }
 
 # Interactive line chart section - now using HTML file
@@ -147,6 +191,7 @@ line_prob_files <- list.files(
 )
 
 future_line_cards <- character(0)
+past_line_cards <- character(0)
 
 if (length(line_prob_files) > 0) {
   line_prob_dates <- str_match(line_prob_files, "line_probabilities_meeting_(\\d{4}-\\d{2}-\\d{2})\\.png")[, 2]
@@ -173,6 +218,22 @@ if (length(line_prob_files) > 0) {
     character(1)
   )
 
+  past_line_cards <- vapply(
+    which(line_prob_dates_obj < current_date),
+    function(i) {
+      png_path <- file.path("meeting_lines", line_prob_files[i])
+      date_label <- format(line_prob_dates_obj[i], "%d %B %Y")
+
+      sprintf(
+        '<div class="chart-card">
+  <h3 style="margin: 0 0 15px 0; color: #2c3e50;">%s</h3>
+  <img src="%s" alt="Meeting probability lines for %s" class="expandable" style="width: 100%%; height: auto; border-radius: 6px;" />
+</div>',
+        date_label, png_path, date_label
+      )
+    },
+    character(1)
+  )
 }
 
 # Future meetings visualization tabs
@@ -201,6 +262,21 @@ future_meeting_section <- sprintf('
   heatmap_tab,
   line_tab
 )
+
+# Past meetings section
+past_meeting_section <- if (length(past_cards) > 0) {
+  paste('<h1 style="margin-top:60px; text-align:center;">Previous Meetings</h1>\n<div class="grid">',
+        paste(past_cards, collapse = "\n"), '</div>')
+} else {
+  ""
+}
+
+past_line_section <- if (length(past_line_cards) > 0) {
+  paste('<h1 style="margin-top:60px; text-align:center;">Past Meeting Line Charts</h1>\n<div class="grid">',
+        paste(past_line_cards, collapse = "\n"), '</div>')
+} else {
+  ""
+}
 
 # Assemble HTML
 html <- sprintf('
@@ -356,6 +432,9 @@ html <- sprintf('
 
   %s
 
+  %s
+
+  %s
 
   %s
 
@@ -429,16 +508,13 @@ html <- sprintf('
 
   intro_paragraph,
 
-    interactive_line_section,
-    future_meeting_section
-  )
+  interactive_line_section,
+  future_meeting_section,
 
-  # Write output
-  writeLines(html, "docs/index.html")
-  message(
-    "✅ index.html written with ",
-    length(future_cards),
-    " upcoming meeting heatmaps and ",
-    length(future_line_cards),
-    " upcoming meeting line charts."
-  )
+
+  past_line_section
+)
+
+# Write output
+writeLines(html, "docs/index.html")
+message("✅ index.html written with ", length(future_cards), " upcoming meeting charts and ", length(past_cards), " past meeting charts.")
