@@ -274,6 +274,8 @@ for (mt in future_meetings) {
 
   end_time <- max(meeting_df$scrape_time)
   start_time <- min(meeting_df$scrape_time)
+  six_months_back <- as.POSIXct(Sys.Date() %m-% months(6), tz = "Australia/Melbourne")
+  axis_start <- max(start_time + hours(hours_tz), six_months_back)
 
   line_plot <- ggplot(meeting_df, aes(x = scrape_time + hours(hours_tz), y = probability, color = move)) +
     geom_line(linewidth = 1) +
@@ -287,7 +289,7 @@ for (mt in future_meetings) {
       color = "Move",
       caption = "Probabilities may not add up to 100% because moves with small probabilities are not included."
     ) +
-    coord_cartesian(xlim = c(start_time + hours(hours_tz), end_time + hours(hours_tz))) +
+    coord_cartesian(xlim = c(axis_start, end_time + hours(hours_tz))) +
     theme_minimal() +
     theme(
       legend.position = "bottom",
