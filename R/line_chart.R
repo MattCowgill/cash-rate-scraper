@@ -741,6 +741,8 @@ ggsave(
 # ------------------------------------------------------------------------------
 
 # Create base plot WITHOUT any vertical lines
+meeting_label <- format(next_meeting, "%d %b %Y")
+
 line_int_base <- ggplot(top3_df, aes(x = scrape_time + hours(hours_tz),
                                       y = probability,
                                       colour = move,
@@ -768,6 +770,7 @@ line_int_base <- ggplot(top3_df, aes(x = scrape_time + hours(hours_tz),
     y = "Probability"
   ) +
   aes(text = paste0(
+    "Meeting: ", meeting_label, "<br>",
     "Time: ", format(scrape_time + hours(hours_tz), "%d %b %H:%M"), "<br>",
     "Move: ", move, "<br>",
     "Probability: ", percent(probability, accuracy = 1)
@@ -798,6 +801,7 @@ release_segments <- relevant_releases %>%
     yend = 1,
     text = paste0(
       "<b>", dataset, "</b><br>",
+      "Meeting: ", meeting_label, "<br>",
       format(datetime, "%d %b %Y<br>%H:%M AEST")
     )
   )
