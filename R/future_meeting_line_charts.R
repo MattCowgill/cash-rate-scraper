@@ -263,12 +263,12 @@ for (mt in future_meetings) {
     group_by(move) %>%
     mutate(peak_probability = max(probability, na.rm = TRUE)) %>%
     ungroup() %>%
-    filter(peak_probability >= 0.10) %>%
+    filter(peak_probability >= 0.05) %>%
     mutate(move = factor(move, levels = move_levels)) %>%
     droplevels()
 
   if (nrow(meeting_df) == 0) {
-    message(glue("Skipping {mt}: no moves exceed 10% probability."))
+    message(glue("Skipping {mt}: no moves exceed 5% probability."))
     next
   }
 
