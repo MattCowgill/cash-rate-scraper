@@ -182,10 +182,59 @@ forecast_paths_window <- forecast_paths %>%
   mutate(scrape_date = as.Date(scrape_time)) %>%
   filter(expiry >= x_start, expiry <= x_end)
 
+threshold_bp <- 5
+
+forecast_paths_grouped <- forecast_paths_window %>%
+  arrange(scrape_time, expiry) %>%
+  group_split(scrape_time)
+
+filtered_paths <- list()
+last_kept_path <- NULL
+kept_scrapes <- c()
+
+for (path_df in forecast_paths_grouped) {
+  current_scrape <- unique(path_df$scrape_time)
+
+  if (length(current_scrape) != 1) {
+    next
+  }
+
+  if (is.null(last_kept_path)) {
+    filtered_paths <- append(filtered_paths, list(path_df))
+    last_kept_path <- path_df
+    kept_scrapes <- c(kept_scrapes, current_scrape)
+    next
+  }
+
+  overlap <- inner_join(
+    path_df %>% select(expiry, cash_rate),
+    last_kept_path %>% select(expiry, cash_rate),
+    by = "expiry",
+    suffix = c("", "_prev")
+  )
+
+  mean_change_bp <- if (nrow(overlap) == 0) {
+    NA_real_
+  } else {
+    overlap %>%
+      summarise(mean_bp = mean(abs(cash_rate - cash_rate_prev) * 100, na.rm = TRUE)) %>%
+      pull(mean_bp)
+  }
+
+  if (!is.na(mean_change_bp) && mean_change_bp >= threshold_bp) {
+    filtered_paths <- append(filtered_paths, list(path_df))
+    last_kept_path <- path_df
+    kept_scrapes <- c(kept_scrapes, current_scrape)
+  }
+}
+
+forecast_paths_window <- bind_rows(filtered_paths)
+
 latest_path <- forecast_paths_window %>%
   filter(scrape_time == max(scrape_time))
 
 latest_event_date <- forecast_snapshots %>%
+  filter(scrape_time %in% kept_scrapes) %>%
   slice_max(event_time, n = 1, with_ties = FALSE) %>%
   pull(event_time) %>%
   as.Date()
