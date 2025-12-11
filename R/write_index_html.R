@@ -179,6 +179,67 @@ if (file.exists("docs/line_interactive.html")) {
   </p>'
 }
 
+forecast_paths_section <- ""
+if (file.exists("docs/cash_rate_forecast_paths.html")) {
+  forecast_paths_section <- '
+  <h1 style="margin-top:60px; text-align:center;">
+    Cash Rate Forecast Paths Around Key Events
+  </h1>
+  <div style="
+      display: flex;
+      justify-content: center;
+      margin: 40px 0;
+    ">
+    <iframe
+      src="cash_rate_forecast_paths.html"
+      style="
+        width: 90%;
+        height: 650px;
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        background: white;
+      "
+      frameborder="0"
+    ></iframe>
+  </div>
+  <p style="max-width: 900px; margin: 20px auto; text-align: center; font-size: 1rem; color: #555; line-height: 1.6;">
+    Interactive forecast paths around RBA meetings, CPI releases, and labour force publications. Hover to inspect each scrape and
+    use the scroll wheel or pinch gesture to zoom the timeline.
+    <a href="cash_rate_forecast_paths.html" target="_blank" style="color: #3498db; text-decoration: none; font-weight: 500;">
+      Open full-screen →
+    </a>
+    <a href="cash_rate_forecast_paths.png" target="_blank" style="color: #3498db; text-decoration: none; font-weight: 500;">
+      View static version →
+    </a>
+  </p>'
+} else if (file.exists("docs/cash_rate_forecast_paths.png")) {
+  forecast_paths_section <- '
+  <h1 style="margin-top:60px; text-align:center;">
+    Cash Rate Forecast Paths Around Key Events
+  </h1>
+  <div style="
+      display: flex;
+      justify-content: center;
+      margin: 40px 0;
+    ">
+    <img
+      src="cash_rate_forecast_paths.png"
+      alt="Cash rate forecast paths"
+      class="expandable"
+      style="
+        width: 90%;
+        height: auto;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      "
+    />
+  </div>
+  <p style="max-width: 900px; margin: 20px auto; text-align: center; font-size: 1rem; color: #555; line-height: 1.6;">
+    Forecast paths around RBA meetings, CPI releases, and labour force publications. Interactive version currently unavailable.
+  </p>'
+}
+
 # Future meetings section
 # Line probability charts by meeting (future and past)
 line_prob_files <- list.files(
@@ -433,6 +494,8 @@ html <- sprintf('
 
   %s
 
+  %s
+
 
 
   <!-- Lightbox Modal -->
@@ -506,6 +569,9 @@ html <- sprintf('
   intro_paragraph,
 
   interactive_line_section,
+
+  forecast_paths_section,
+
   future_meeting_section
 )
 
