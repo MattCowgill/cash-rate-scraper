@@ -436,7 +436,7 @@ html <- sprintf('
 
   %s
 
-  %s
+
 
   <!-- Lightbox Modal -->
   <div id="lightbox" class="lightbox">
@@ -509,10 +509,7 @@ html <- sprintf('
   intro_paragraph,
 
   interactive_line_section,
-  future_meeting_section,
-
-
-  past_line_section
+  future_meeting_section
 )
 
 # Write output
