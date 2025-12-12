@@ -196,6 +196,20 @@ plot_actual_filtered <- plot_actual %>%
 
 forecast_paths_window <- forecast_paths %>%
   mutate(scrape_date = as.Date(scrape_time)) %>%
+  mutate(
+    event_reason = case_when(
+      event_type == "RBA meeting" ~ "RBA meeting (policy decision)",
+      event_type == "CPI" ~ "Inflation print (CPI release)",
+      event_type == "Labour Force" ~ "Labour Force / unemployment release",
+      TRUE ~ event_type
+    ),
+    tooltip_text = str_glue(
+      "Reason: {event_reason} on {format(event_time, '%d %b %Y')}<br>",
+      "Scrape: {format(scrape_time, '%d %b %Y %H:%M %Z')}<br>",
+      "Expiry: {format(expiry, '%b %Y')}<br>",
+      "Implied rate: {scales::number(cash_rate, accuracy = 0.001)}%"
+    )
+  ) %>%
   filter(expiry >= x_start, expiry <= x_end)
 
 threshold_bp <- 10
@@ -258,18 +272,24 @@ latest_event_date <- forecast_snapshots %>%
   forecast_plot <- ggplot() +
     geom_line(
       data = plot_actual_filtered,
-      aes(x = date, y = actual_rate),
+      aes(x = date, y = actual_rate, text = "Actual cash rate"),
       linewidth = 1,
       color = "#2b2b2b"
     ) +
     geom_line(
       data = forecast_paths_window,
-      aes(x = expiry, y = cash_rate, group = scrape_time, color = scrape_date),
+      aes(
+        x = expiry,
+        y = cash_rate,
+        group = scrape_time,
+        color = scrape_date,
+        text = tooltip_text
+      ),
       alpha = 0.5
     ) +
     geom_line(
       data = latest_path,
-      aes(x = expiry, y = cash_rate, group = scrape_time),
+      aes(x = expiry, y = cash_rate, group = scrape_time, text = tooltip_text),
       color = "black",
       linetype = "dashed",
       linewidth = 0.9
@@ -303,7 +323,7 @@ latest_event_date <- forecast_snapshots %>%
     plot.caption = element_text(margin = margin(t = 10))
   )
 
-forecast_plot_interactive <- ggplotly(forecast_plot, tooltip = c("x", "y", "colour")) %>%
+forecast_plot_interactive <- ggplotly(forecast_plot, tooltip = "text") %>%
   layout(showlegend = FALSE,
          annotations = list(
            list(
