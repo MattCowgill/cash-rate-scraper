@@ -287,13 +287,6 @@ latest_event_date <- forecast_snapshots %>%
       ),
       alpha = 0.5
     ) +
-    geom_line(
-      data = latest_path,
-      aes(x = expiry, y = cash_rate, group = scrape_time, text = tooltip_text),
-      color = "black",
-      linetype = "dashed",
-      linewidth = 0.9
-    ) +
     scale_color_gradientn(
       colors = viridis(9),
       name = "Scrape date",
