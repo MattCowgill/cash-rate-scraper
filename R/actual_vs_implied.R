@@ -182,7 +182,7 @@ forecast_paths_window <- forecast_paths %>%
   mutate(scrape_date = as.Date(scrape_time)) %>%
   filter(expiry >= x_start, expiry <= x_end)
 
-threshold_bp <- 5
+threshold_bp <- 15
 
 forecast_paths_grouped <- forecast_paths_window %>%
   arrange(scrape_time, expiry) %>%
