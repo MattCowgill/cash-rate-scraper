@@ -23,7 +23,8 @@ new_data <- fromJSON(json_file) %>%
       ymd(dateLastTrade) >= ymd(datePreviousSettlement),
       100 - priceLastTrade,
       100 - pricePreviousSettlement
-    )
+    ),
+    cash_rate_PreviousSettlement = 100 - pricePreviousSettlement
   )
 
 
