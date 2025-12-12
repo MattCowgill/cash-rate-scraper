@@ -84,7 +84,8 @@ rba_meetings <- tibble(
     "2026-08-11 14:30", "2026-09-29 14:30", "2026-11-03 14:30",
     "2026-12-08 14:30", "2027-02-03 14:30", "2027-03-17 14:30"
   ), tz = "Australia/Melbourne")
-)
+) %>%
+  filter(month(event_time) %in% c(2, 5, 8, 11))
 
 cpi_releases <- tribble(
   ~event_type, ~event_time,
@@ -149,12 +150,27 @@ select_scrape <- function(event_time) {
   max(target_scrapes[target_scrapes <= event_time])
 }
 
+select_same_day_last <- function(event_time) {
+  event_date <- as.Date(event_time)
+  same_day_scrapes <- target_scrapes[as.Date(target_scrapes) == event_date]
+
+  if (length(same_day_scrapes) > 0) {
+    return(max(same_day_scrapes))
+  }
+
+  select_scrape(event_time)
+}
+
 max_scrape_time <- max(target_scrapes)
 
 forecast_snapshots <- events %>%
   filter(event_time <= max_scrape_time) %>%
   mutate(
-    scrape_time = map(event_time, select_scrape) %>% reduce(c),
+    scrape_time = map2(
+      event_time,
+      event_type,
+      ~ if (.y == "RBA meeting") select_same_day_last(.x) else select_scrape(.x)
+    ) %>% reduce(c),
     event_label = str_c(event_type, ": ", format(event_date, "%d %b %Y"))
   ) %>%
   distinct(event_type, event_label, scrape_time, event_time)
