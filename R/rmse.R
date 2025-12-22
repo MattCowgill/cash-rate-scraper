@@ -12,7 +12,7 @@ ensure_packages <- function(pkgs) {
 
 ensure_packages(c(
   "dplyr", "tidyr", "lubridate", "readr", "ggplot2", "zoo", "broom",
-  "purrr", "readrba", "tzdb","vroom"
+  "purrr", "readrba", "tzdb", "vroom", "backports"
 ))
 
 library(dplyr)
