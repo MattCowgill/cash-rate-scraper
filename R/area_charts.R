@@ -838,7 +838,12 @@ if (!is.null(actual_outcome)) {
   }
 }
 
-    
+highlight_with_pattern <- !is.null(df_mt_highlight) && nrow(df_mt_highlight) > 0
+pattern_dependencies_available <- requireNamespace("litedown", quietly = TRUE)
+if (highlight_with_pattern && !pattern_dependencies_available) {
+  cat("litedown not installed; using solid highlight instead of patterned overlay.\n")
+}
+
 # Build base plot
     area_mt <- ggplot2::ggplot(
       df_mt,
@@ -847,21 +852,35 @@ if (!is.null(actual_outcome)) {
       ggplot2::geom_area(position = "stack", alpha = 0.95, colour = NA) +
       # *** Add patterned gold overlay to actual outcome ***
       {if(!is.null(actual_outcome) && !is.null(df_mt_highlight) && nrow(df_mt_highlight) > 0) {
-        ggpattern::geom_ribbon_pattern(
-          data = df_mt_highlight,
-          aes(x = scrape_time + lubridate::hours(10), 
+        if (pattern_dependencies_available) {
+          ggpattern::geom_ribbon_pattern(
+            data = df_mt_highlight,
+            aes(x = scrape_time + lubridate::hours(10), 
+                ymin = lower_bound,
+                ymax = cumulative_prob),
+            pattern = "stripe",
+            pattern_fill = "gold",
+            pattern_color = "gold",
+            pattern_density = 0.15,
+            pattern_spacing = 0.015,
+            pattern_angle = 45,
+            fill = "gold",
+            alpha = 0.3,
+            color = NA,
+            inherit.aes = FALSE)
+        } else {
+          ggplot2::geom_ribbon(
+            data = df_mt_highlight,
+            aes(
+              x = scrape_time + lubridate::hours(10),
               ymin = lower_bound,
-              ymax = cumulative_prob),
-          pattern = "stripe",
-          pattern_fill = "gold",
-          pattern_color = "gold",
-          pattern_density = 0.15,
-          pattern_spacing = 0.015,
-          pattern_angle = 45,
-          fill = "gold",
-          alpha = 0.3,
-          color = NA,
-          inherit.aes = FALSE)
+              ymax = cumulative_prob
+            ),
+            fill = "gold",
+            alpha = 0.3,
+            inherit.aes = FALSE
+          )
+        }
       }} +
       # Grey dashed horizontal line at 50%
       ggplot2::geom_hline(yintercept = 0.5, linetype = "dashed", 
