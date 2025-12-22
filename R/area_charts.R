@@ -777,9 +777,10 @@ df_mt <- all_estimates_buckets_ext %>%
   
   cat("RBA meetings in plot range:", nrow(rba_meetings_in_range), "\n")
   
-  # Store processed data early so exports can proceed even if plotting fails
-  processed_data_by_meeting[[as.character(meeting_date_proper)]] <- df_mt
-  
+  # Cache processed data for later CSV export (even if plotting fails)
+  processed_data_by_meeting[[as.character(meeting_date_proper)]] <- df_mt %>%
+    dplyr::mutate(meeting_date = meeting_date_proper)
+
   # PLOTTING WITH ENHANCED ERROR HANDLING
   filename <- paste0("docs/meetings/area_all_moves_", fmt_file(meeting_date_proper), ".png")
   cat("Attempting to create plot and save to:", filename, "\n")
@@ -1014,8 +1015,6 @@ for (mt in future_meetings_all) {
 }
 
 # 6. Combined CSV export from processed data
-combined_csv <- tibble::tibble()
-
 if (length(processed_data_by_meeting) > 0) {
   combined_csv <- bind_rows(processed_data_by_meeting, .id = "meeting_date") %>%
     mutate(
@@ -1034,18 +1033,18 @@ if (length(processed_data_by_meeting) > 0) {
       bucket_rate,
       probability
     )
-} else {
-  cat("No processed data available; skipping combined CSV export.\n")
-}
 
-# Export combined CSV
-if (nrow(combined_csv) > 0) {
-  tryCatch({
-    write.csv(combined_csv, "docs/meetings/csv/all_meetings_area_data.csv", row.names = FALSE)
-    cat("Combined CSV exported: docs/meetings/csv/all_meetings_area_data.csv\n")
-    cat("Total rows:", nrow(combined_csv), "\n")
-    cat("Meetings included:", length(unique(combined_csv$meeting_date)), "\n")
-  }, error = function(e) {
-    cat("Error exporting combined CSV:", e$message, "\n")
-  })
+  # Export combined CSV
+  if (nrow(combined_csv) > 0) {
+    tryCatch({
+      write.csv(combined_csv, "docs/meetings/csv/all_meetings_area_data.csv", row.names = FALSE)
+      cat("Combined CSV exported: docs/meetings/csv/all_meetings_area_data.csv\n")
+      cat("Total rows:", nrow(combined_csv), "\n")
+      cat("Meetings included:", length(unique(combined_csv$meeting_date)), "\n")
+    }, error = function(e) {
+      cat("Error exporting combined CSV:", e$message, "\n")
+    })
+  }
+} else {
+  cat("Skipping combined CSV export - no processed meetings available.\n")
 }
