@@ -33,7 +33,7 @@ jobs:
       - name: Install vctrs
         run: Rscript -e 'install.packages("vctrs")'
       - name: Install packages
-        run: Rscript -e 'install.packages(c("tidyverse","here","jsonlite","ggrepel","viridis","conflicted","tidyr","scales","readabs","readrba","plotly","purrr","cachem","dplyr","ggpattern","ggtext","zoo","vroom"))'
+        run: Rscript -e 'install.packages(c("tidyverse","here","jsonlite","ggrepel","viridis","conflicted","tidyr","scales","readabs","readrba","plotly","purrr","cachem","dplyr","ggpattern","ggtext","zoo","vroom","xfun"))'
 
       # Run RMSEs on push OR monthly (1st at midnight)
       - name: Calculate RMSEs (push or monthly)
