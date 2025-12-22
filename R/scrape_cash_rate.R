@@ -1,3 +1,20 @@
+ensure_packages <- function(pkgs) {
+  missing_pkgs <- pkgs[!pkgs %in% rownames(installed.packages())]
+
+  if (length(missing_pkgs) > 0) {
+    install.packages(missing_pkgs, repos = "https://cloud.r-project.org")
+  }
+}
+
+ensure_packages(c(
+  "conflicted",
+  "tidyverse",
+  "jsonlite",
+  "lubridate",
+  "bit",
+  "bit64"
+))
+
 library(conflicted)
 conflict_prefer_all("dplyr", quiet = TRUE)
 library(tidyverse)
