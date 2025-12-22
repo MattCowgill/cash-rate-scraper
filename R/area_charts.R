@@ -777,6 +777,10 @@ df_mt <- all_estimates_buckets_ext %>%
   
   cat("RBA meetings in plot range:", nrow(rba_meetings_in_range), "\n")
   
+  # Cache processed data for later CSV export (even if plotting fails)
+  processed_data_by_meeting[[as.character(meeting_date_proper)]] <- df_mt %>%
+    dplyr::mutate(meeting_date = meeting_date_proper)
+
   # PLOTTING WITH ENHANCED ERROR HANDLING
   filename <- paste0("docs/meetings/area_all_moves_", fmt_file(meeting_date_proper), ".png")
   cat("Attempting to create plot and save to:", filename, "\n")
@@ -921,11 +925,6 @@ ggplot2::theme(
       device = "png"
     )
 
- meeting_date_proper <- as.Date(mt)
-  processed_data_by_meeting[[as.character(meeting_date_proper)]] <- df_mt
- 
-    
-    
     if (file.exists(temp_filename)) {
       file.rename(temp_filename, filename)
       plot_success <- TRUE
@@ -997,32 +996,36 @@ for (mt in future_meetings_all) {
 }
 
 # 6. Combined CSV export from processed data
-combined_csv <- bind_rows(processed_data_by_meeting, .id = "meeting_date") %>%
-  mutate(
-    meeting_date = as.Date(meeting_date),
-    bucket_rate = as.numeric(sub("%$", "", as.character(move))) / 100,
-    diff_bps = as.integer(round((bucket_rate - current_rate) * 100)),
-    scrape_datetime_aest = format(scrape_time + lubridate::hours(10), "%Y-%m-%d %H:%M:%S")
-  ) %>%
-  arrange(meeting_date, scrape_time, diff_bps) %>%
-  select(
-    meeting_date,
-    scrape_time,
-    scrape_datetime_aest,
-    move,
-    diff_bps,
-    bucket_rate,
-    probability
-  )
+if (length(processed_data_by_meeting) > 0) {
+  combined_csv <- bind_rows(processed_data_by_meeting, .id = "meeting_date") %>%
+    mutate(
+      meeting_date = as.Date(meeting_date),
+      bucket_rate = as.numeric(sub("%$", "", as.character(move))) / 100,
+      diff_bps = as.integer(round((bucket_rate - current_rate) * 100)),
+      scrape_datetime_aest = format(scrape_time + lubridate::hours(10), "%Y-%m-%d %H:%M:%S")
+    ) %>%
+    arrange(meeting_date, scrape_time, diff_bps) %>%
+    select(
+      meeting_date,
+      scrape_time,
+      scrape_datetime_aest,
+      move,
+      diff_bps,
+      bucket_rate,
+      probability
+    )
 
-# Export combined CSV
-if (nrow(combined_csv) > 0) {
-  tryCatch({
-    write.csv(combined_csv, "docs/meetings/csv/all_meetings_area_data.csv", row.names = FALSE)
-    cat("Combined CSV exported: docs/meetings/csv/all_meetings_area_data.csv\n")
-    cat("Total rows:", nrow(combined_csv), "\n")
-    cat("Meetings included:", length(unique(combined_csv$meeting_date)), "\n")
-  }, error = function(e) {
-    cat("Error exporting combined CSV:", e$message, "\n")
-  })
+  # Export combined CSV
+  if (nrow(combined_csv) > 0) {
+    tryCatch({
+      write.csv(combined_csv, "docs/meetings/csv/all_meetings_area_data.csv", row.names = FALSE)
+      cat("Combined CSV exported: docs/meetings/csv/all_meetings_area_data.csv\n")
+      cat("Total rows:", nrow(combined_csv), "\n")
+      cat("Meetings included:", length(unique(combined_csv$meeting_date)), "\n")
+    }, error = function(e) {
+      cat("Error exporting combined CSV:", e$message, "\n")
+    })
+  }
+} else {
+  cat("Skipping combined CSV export - no processed meetings available.\n")
 }
