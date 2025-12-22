@@ -777,6 +777,9 @@ df_mt <- all_estimates_buckets_ext %>%
   
   cat("RBA meetings in plot range:", nrow(rba_meetings_in_range), "\n")
   
+  # Store processed data early so exports can proceed even if plotting fails
+  processed_data_by_meeting[[as.character(meeting_date_proper)]] <- df_mt
+  
   # PLOTTING WITH ENHANCED ERROR HANDLING
   filename <- paste0("docs/meetings/area_all_moves_", fmt_file(meeting_date_proper), ".png")
   cat("Attempting to create plot and save to:", filename, "\n")
@@ -834,7 +837,12 @@ if (!is.null(actual_outcome)) {
   }
 }
 
-    
+highlight_with_pattern <- !is.null(df_mt_highlight) && nrow(df_mt_highlight) > 0
+pattern_dependencies_available <- requireNamespace("litedown", quietly = TRUE)
+if (highlight_with_pattern && !pattern_dependencies_available) {
+  cat("litedown not installed; using solid highlight instead of patterned overlay.\n")
+}
+
 # Build base plot
     area_mt <- ggplot2::ggplot(
       df_mt,
@@ -843,21 +851,35 @@ if (!is.null(actual_outcome)) {
       ggplot2::geom_area(position = "stack", alpha = 0.95, colour = NA) +
       # *** Add patterned gold overlay to actual outcome ***
       {if(!is.null(actual_outcome) && !is.null(df_mt_highlight) && nrow(df_mt_highlight) > 0) {
-        ggpattern::geom_ribbon_pattern(
-          data = df_mt_highlight,
-          aes(x = scrape_time + lubridate::hours(10), 
+        if (pattern_dependencies_available) {
+          ggpattern::geom_ribbon_pattern(
+            data = df_mt_highlight,
+            aes(x = scrape_time + lubridate::hours(10), 
+                ymin = lower_bound,
+                ymax = cumulative_prob),
+            pattern = "stripe",
+            pattern_fill = "gold",
+            pattern_color = "gold",
+            pattern_density = 0.15,
+            pattern_spacing = 0.015,
+            pattern_angle = 45,
+            fill = "gold",
+            alpha = 0.3,
+            color = NA,
+            inherit.aes = FALSE)
+        } else {
+          ggplot2::geom_ribbon(
+            data = df_mt_highlight,
+            aes(
+              x = scrape_time + lubridate::hours(10),
               ymin = lower_bound,
-              ymax = cumulative_prob),
-          pattern = "stripe",
-          pattern_fill = "gold",
-          pattern_color = "gold",
-          pattern_density = 0.15,
-          pattern_spacing = 0.015,
-          pattern_angle = 45,
-          fill = "gold",
-          alpha = 0.3,
-          color = NA,
-          inherit.aes = FALSE)
+              ymax = cumulative_prob
+            ),
+            fill = "gold",
+            alpha = 0.3,
+            inherit.aes = FALSE
+          )
+        }
       }} +
       # Grey dashed horizontal line at 50%
       ggplot2::geom_hline(yintercept = 0.5, linetype = "dashed", 
@@ -921,11 +943,6 @@ ggplot2::theme(
       device = "png"
     )
 
- meeting_date_proper <- as.Date(mt)
-  processed_data_by_meeting[[as.character(meeting_date_proper)]] <- df_mt
- 
-    
-    
     if (file.exists(temp_filename)) {
       file.rename(temp_filename, filename)
       plot_success <- TRUE
@@ -997,23 +1014,29 @@ for (mt in future_meetings_all) {
 }
 
 # 6. Combined CSV export from processed data
-combined_csv <- bind_rows(processed_data_by_meeting, .id = "meeting_date") %>%
-  mutate(
-    meeting_date = as.Date(meeting_date),
-    bucket_rate = as.numeric(sub("%$", "", as.character(move))) / 100,
-    diff_bps = as.integer(round((bucket_rate - current_rate) * 100)),
-    scrape_datetime_aest = format(scrape_time + lubridate::hours(10), "%Y-%m-%d %H:%M:%S")
-  ) %>%
-  arrange(meeting_date, scrape_time, diff_bps) %>%
-  select(
-    meeting_date,
-    scrape_time,
-    scrape_datetime_aest,
-    move,
-    diff_bps,
-    bucket_rate,
-    probability
-  )
+combined_csv <- tibble::tibble()
+
+if (length(processed_data_by_meeting) > 0) {
+  combined_csv <- bind_rows(processed_data_by_meeting, .id = "meeting_date") %>%
+    mutate(
+      meeting_date = as.Date(meeting_date),
+      bucket_rate = as.numeric(sub("%$", "", as.character(move))) / 100,
+      diff_bps = as.integer(round((bucket_rate - current_rate) * 100)),
+      scrape_datetime_aest = format(scrape_time + lubridate::hours(10), "%Y-%m-%d %H:%M:%S")
+    ) %>%
+    arrange(meeting_date, scrape_time, diff_bps) %>%
+    select(
+      meeting_date,
+      scrape_time,
+      scrape_datetime_aest,
+      move,
+      diff_bps,
+      bucket_rate,
+      probability
+    )
+} else {
+  cat("No processed data available; skipping combined CSV export.\n")
+}
 
 # Export combined CSV
 if (nrow(combined_csv) > 0) {
