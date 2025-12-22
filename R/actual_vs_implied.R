@@ -8,6 +8,19 @@
 #          outputs are written to the docs/ directory.
 # ==============================================================================
 
+ensure_packages <- function(pkgs) {
+  missing_pkgs <- pkgs[!pkgs %in% rownames(installed.packages())]
+  if (length(missing_pkgs) > 0) {
+    install.packages(missing_pkgs, repos = "https://cloud.r-project.org")
+  }
+}
+
+ensure_packages(c(
+  "dplyr", "ggplot2", "here", "htmlwidgets", "lubridate", "purrr",
+  "plotly", "readrba", "scales", "viridis", "stringr", "tibble",
+  "tidyr", "evaluate"
+))
+
 suppressPackageStartupMessages({
   library(dplyr)
   library(ggplot2)
