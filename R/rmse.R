@@ -206,23 +206,49 @@ compute_rmse_by_horizon <- function(data, label) {
     mutate(sample = label)
 }
 
-rmse_full_sample <- compute_rmse_by_horizon(daily_forecasts, "Full sample")
-rmse_end_2019 <- daily_forecasts %>%
-  filter(forecast_date <= as.Date("2019-12-31")) %>%
-  compute_rmse_by_horizon("Ending in 2019")
-rmse_start_2001 <- daily_forecasts %>%
-  filter(forecast_date >= as.Date("2001-01-01")) %>%
-  compute_rmse_by_horizon("Starting in 2001")
-rmse_start_2009 <- daily_forecasts %>%
-  filter(forecast_date >= as.Date("2009-01-01")) %>%
-  compute_rmse_by_horizon("Starting in 2009")
-
-rmse_subsamples <- bind_rows(
-  rmse_full_sample,
-  rmse_end_2019,
-  rmse_start_2001,
-  rmse_start_2009
+sample_definitions <- list(
+  "Full sample" = daily_forecasts,
+  "Ending in 2019" = daily_forecasts %>% filter(forecast_date <= as.Date("2019-12-31")),
+  "Starting in 2001" = daily_forecasts %>% filter(forecast_date >= as.Date("2001-01-01")),
+  "Starting in 2009" = daily_forecasts %>% filter(forecast_date >= as.Date("2009-01-01"))
 )
+
+rmse_subsamples <- imap_dfr(
+  sample_definitions,
+  ~ {
+    if (nrow(.x) == 0) {
+      return(tibble(
+        days_ahead = integer(),
+        n_forecasts = integer(),
+        rmse = numeric(),
+        sample = .y
+      ))
+    }
+    compute_rmse_by_horizon(.x, .y)
+  }
+)
+
+sample_summary <- imap_dfr(
+  sample_definitions,
+  ~ tibble(
+    sample = .y,
+    n_rows = nrow(.x),
+    min_date = if (nrow(.x) == 0) as.Date(NA) else min(.x$forecast_date),
+    max_date = if (nrow(.x) == 0) as.Date(NA) else max(.x$forecast_date)
+  )
+)
+
+cat("\n=== RMSE SUBSAMPLE SUMMARY ===\n")
+print(sample_summary)
+if (any(sample_summary$n_rows == 0)) {
+  warning(
+    "No data available for subsample(s): ",
+    paste(sample_summary$sample[sample_summary$n_rows == 0], collapse = ", ")
+  )
+}
+
+write_csv(rmse_subsamples, "combined_data/rmse_subsample_comparison.csv")
+cat("✓ Saved RMSE subsamples to: combined_data/rmse_subsample_comparison.csv\n")
 
 if (nrow(rmse_subsamples) == 0) {
   warning("No data available for RMSE subsample comparison plot.")
