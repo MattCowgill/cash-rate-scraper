@@ -149,9 +149,9 @@ if (file.exists("docs/line_interactive.html")) {
   </div>
   <p style="max-width: 800px; margin: 20px auto; text-align: center; font-size: 1rem; color: #555; line-height: 1.6;">
     This chart shows the market-implied probability of different cash rate outcomes at the next RBA meeting, hover over the chart to explore daily probabilities. 
-    <a href="line.png" target="_blank" style="color: #3498db; text-decoration: none; font-weight: 500;">View static version →</a>
+    <a href="plots/line_charts/line.png" target="_blank" style="color: #3498db; text-decoration: none; font-weight: 500;">View static version →</a>
   </p>'
-} else if (file.exists("docs/line.png")) {
+} else if (file.exists("docs/plots/line_charts/line.png")) {
   # Fallback to PNG if HTML doesn't exist
   interactive_line_section <- '
   <h1 style="margin-top:60px; text-align:center;">
@@ -163,7 +163,7 @@ if (file.exists("docs/line_interactive.html")) {
       margin: 40px 0;
     ">
     <img 
-      src="line.png" 
+      src="plots/line_charts/line.png" 
       alt="Next RBA Meeting Line Chart"
       class="expandable"
       style="
@@ -209,11 +209,11 @@ if (file.exists("docs/cash_rate_forecast_paths.html")) {
     <a href="cash_rate_forecast_paths.html" target="_blank" style="color: #3498db; text-decoration: none; font-weight: 500;">
       Open full-screen →
     </a>
-    <a href="cash_rate_forecast_paths.png" target="_blank" style="color: #3498db; text-decoration: none; font-weight: 500;">
+    <a href="plots/forecast_paths/cash_rate_forecast_paths.png" target="_blank" style="color: #3498db; text-decoration: none; font-weight: 500;">
       View static version →
     </a>
   </p>'
-} else if (file.exists("docs/cash_rate_forecast_paths.png")) {
+} else if (file.exists("docs/plots/forecast_paths/cash_rate_forecast_paths.png")) {
   forecast_paths_section <- '
   <h1 style="margin-top:60px; text-align:center;">
     Cash Rate Forecast Paths Around Key Events
@@ -224,7 +224,7 @@ if (file.exists("docs/cash_rate_forecast_paths.html")) {
       margin: 40px 0;
     ">
     <img
-      src="cash_rate_forecast_paths.png"
+      src="plots/forecast_paths/cash_rate_forecast_paths.png"
       alt="Cash rate forecast paths"
       class="expandable"
       style="

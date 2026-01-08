@@ -250,6 +250,11 @@ if (any(sample_summary$n_rows == 0)) {
 write_csv(rmse_subsamples, "combined_data/rmse_subsample_comparison.csv")
 cat("✓ Saved RMSE subsamples to: combined_data/rmse_subsample_comparison.csv\n")
 
+rmse_plot_dir <- file.path("docs", "plots", "rmse")
+if (!dir.exists(rmse_plot_dir)) {
+  dir.create(rmse_plot_dir, recursive = TRUE)
+}
+
 if (nrow(rmse_subsamples) == 0) {
   warning("No data available for RMSE subsample comparison plot.")
 } else {
@@ -269,7 +274,7 @@ if (nrow(rmse_subsamples) == 0) {
       legend.position = "bottom"
     )
 
-  rmse_subsample_file <- "docs/rmse_subsample_comparison.png"
+  rmse_subsample_file <- file.path(rmse_plot_dir, "rmse_subsample_comparison.png")
   ggsave(rmse_subsample_file, rmse_subsample_plot, width = 10, height = 6, dpi = 300)
   cat("\n✓ Saved RMSE subsample comparison plot to:", rmse_subsample_file, "\n")
 }
@@ -370,8 +375,9 @@ if (nrow(daily_forecasts) == 0) {
       legend.position = "bottom"
     )
 
-  ggsave("docs/rmse_model_fit.png", rmse_fit_plot, width = 10, height = 6, dpi = 300)
-  cat("\n✓ Saved RMSE model fit comparison plot to: docs/rmse_model_fit.png\n")
+  rmse_fit_file <- file.path(rmse_plot_dir, "rmse_model_fit.png")
+  ggsave(rmse_fit_file, rmse_fit_plot, width = 10, height = 6, dpi = 300)
+  cat("\n✓ Saved RMSE model fit comparison plot to:", rmse_fit_file, "\n")
 }
 
 # =============================================
@@ -408,7 +414,7 @@ if (nrow(error_distributions) == 0) {
       panel.grid.minor = element_blank()
     )
 
-  output_file <- "docs/forecast_error_histograms.png"
+  output_file <- file.path(rmse_plot_dir, "forecast_error_histograms.png")
 
   ggsave(output_file, distribution_plot, width = 10, height = 6, dpi = 300)
 
@@ -448,7 +454,7 @@ if (nrow(daily_forecasts) == 0) {
       plot.title = element_text(face = "bold")
     )
 
-  squared_error_file <- "docs/squared_forecast_error.png"
+  squared_error_file <- file.path(rmse_plot_dir, "squared_forecast_error.png")
 
   ggsave(squared_error_file, squared_error_plot, width = 10, height = 6, dpi = 300)
 
@@ -660,9 +666,10 @@ adjustment_plot <- ggplot() +
     plot.title = element_text(face = "bold", size = 14)
   )
 
-ggsave("combined_data/rmse_adjustment_ratio.png",
+rmse_ratio_plot_file <- file.path(rmse_plot_dir, "rmse_adjustment_ratio.png")
+ggsave(rmse_ratio_plot_file,
        plot = adjustment_plot, width = 12, height = 7, dpi = 300)
-cat("✓ Saved: combined_data/rmse_adjustment_ratio.png\n")
+cat("✓ Saved:", rmse_ratio_plot_file, "\n")
 
 cat("\n=== COMPLETE ===\n")
 cat("✓ Using CONSTANT ratio of", round(constant_ratio, 4), "\n")
