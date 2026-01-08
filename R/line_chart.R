@@ -453,10 +453,17 @@ for (mt in future_meetings) {
     theme_bw() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
+  meeting_plot_dir <- file.path("docs", "plots", "meeting_probabilities")
+  if (!dir.exists(meeting_plot_dir)) {
+    dir.create(meeting_plot_dir, recursive = TRUE)
+  }
+
   # Save chart
   ggsave(
-    filename = paste0("docs/rate_probabilities_", 
-                     gsub(" ", "_", mt), ".png"),
+    filename = file.path(
+      meeting_plot_dir,
+      paste0("rate_probabilities_", gsub(" ", "_", mt), ".png")
+    ),
     plot = p,
     width = 6,
     height = 4,
@@ -644,10 +651,18 @@ line <- ggplot(top3_df, aes(x = scrape_time + hours(hours_tz),
     legend.title = element_blank()
   )
 
+line_plot_dir <- file.path("docs", "plots", "line_charts")
+if (!dir.exists(line_plot_dir)) {
+  dir.create(line_plot_dir, recursive = TRUE)
+}
+
 # Save static plot (two versions)
-ggsave("docs/line.png", line, width = 10, height = 5, dpi = 300)
+ggsave(file.path(line_plot_dir, "line.png"), line, width = 10, height = 5, dpi = 300)
 ggsave(
-  glue("docs/line_{format(next_meeting, '%d %b %Y')}.png"), 
+  file.path(
+    line_plot_dir,
+    glue("line_{format(next_meeting, '%d %b %Y')}.png")
+  ), 
   line, 
   width = 10, 
   height = 5, 
@@ -727,9 +742,12 @@ line_dual <- ggplot() +
     legend.position = "right"
   )
 
-ggsave("docs/line_dual.png", line_dual, width = 10, height = 5, dpi = 300)
+ggsave(file.path(line_plot_dir, "line_dual.png"), line_dual, width = 10, height = 5, dpi = 300)
 ggsave(
-  glue("docs/line_dual_{format(next_meeting, '%d %b %Y')}.png"),
+  file.path(
+    line_plot_dir,
+    glue("line_dual_{format(next_meeting, '%d %b %Y')}.png")
+  ),
   line_dual,
   width = 10,
   height = 5,

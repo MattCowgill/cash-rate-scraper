@@ -348,7 +348,12 @@ forecast_plot_interactive <- ggplotly(forecast_plot, tooltip = "text") %>%
 # ------------------------------------------------------------------------------
 
 # Static forecast path overlay
-forecast_path_png <- here("docs", "cash_rate_forecast_paths.png")
+forecast_plot_dir <- here("docs", "plots", "forecast_paths")
+if (!dir.exists(forecast_plot_dir)) {
+  dir.create(forecast_plot_dir, recursive = TRUE)
+}
+
+forecast_path_png <- file.path(forecast_plot_dir, "cash_rate_forecast_paths.png")
 ggsave(
   filename = forecast_path_png,
   plot = forecast_plot,
