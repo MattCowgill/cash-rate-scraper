@@ -37,6 +37,7 @@ jobs:
 
       # Run RMSEs on push OR monthly (1st at midnight)
       - name: Calculate RMSEs (push or monthly)
+        if: github.event_name != 'workflow_dispatch'
         continue-on-error: true
         run: Rscript -e 'source(here::here("R","rmse.R"), echo = TRUE)'
 
