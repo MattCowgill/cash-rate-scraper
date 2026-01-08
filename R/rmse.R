@@ -191,6 +191,64 @@ cat("\n=== DAILY RMSE (sample) ===\n")
 print(daily_rmse %>% select(days_ahead, n_forecasts, rmse) %>% head(20))
 
 # =============================================
+# 4a. Subsample RMSE comparisons (daily forecasts)
+# =============================================
+
+compute_rmse_by_horizon <- function(data, label) {
+  data %>%
+    mutate(squared_error = forecast_error^2) %>%
+    group_by(days_ahead) %>%
+    summarise(
+      n_forecasts = n(),
+      rmse = sqrt(mean(squared_error, na.rm = TRUE)),
+      .groups = "drop"
+    ) %>%
+    mutate(sample = label)
+}
+
+rmse_full_sample <- compute_rmse_by_horizon(daily_forecasts, "Full sample")
+rmse_end_2019 <- daily_forecasts %>%
+  filter(forecast_date <= as.Date("2019-12-31")) %>%
+  compute_rmse_by_horizon("Ending in 2019")
+rmse_start_2001 <- daily_forecasts %>%
+  filter(forecast_date >= as.Date("2001-01-01")) %>%
+  compute_rmse_by_horizon("Starting in 2001")
+rmse_start_2009 <- daily_forecasts %>%
+  filter(forecast_date >= as.Date("2009-01-01")) %>%
+  compute_rmse_by_horizon("Starting in 2009")
+
+rmse_subsamples <- bind_rows(
+  rmse_full_sample,
+  rmse_end_2019,
+  rmse_start_2001,
+  rmse_start_2009
+)
+
+if (nrow(rmse_subsamples) == 0) {
+  warning("No data available for RMSE subsample comparison plot.")
+} else {
+  rmse_subsample_plot <- ggplot(rmse_subsamples, aes(x = days_ahead, y = rmse, colour = sample)) +
+    geom_line(linewidth = 1) +
+    scale_x_reverse() +
+    labs(
+      title = "RMSE by Forecast Horizon (Full Sample vs. Subsamples)",
+      subtitle = "Comparison of daily forecast RMSE across alternative date ranges",
+      x = "Forecast horizon (days to meeting)",
+      y = "Root mean squared error",
+      colour = "Sample"
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(
+      plot.title = element_text(face = "bold"),
+      legend.position = "bottom"
+    )
+
+  rmse_subsample_file <- "docs/rmse_subsample_comparison.png"
+  ggsave(rmse_subsample_file, rmse_subsample_plot, width = 10, height = 6, dpi = 300)
+  cat("\n✓ Saved RMSE subsample comparison plot to:", rmse_subsample_file, "\n")
+}
+
+# =============================================
 # 4b. Model RMSE as a Function of Days to Meeting
 # =============================================
 
