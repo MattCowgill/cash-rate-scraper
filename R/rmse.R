@@ -63,7 +63,12 @@ cash_rate <- readRDS("combined_data/all_data.Rds")
 # Fix timezone: convert from UTC to Australia/Melbourne
 cash_rate <- cash_rate %>%
   mutate(
-    scrape_time = with_tz(scrape_time, "Australia/Melbourne")
+    scrape_time = with_tz(scrape_time, "Australia/Melbourne"),
+    scrape_date = if ("scrape_date" %in% names(cash_rate)) {
+      as.Date(scrape_date)
+    } else {
+      as.Date(scrape_time)
+    }
   )
 
 cat("Updated scrape_time timezone to:", attr(cash_rate$scrape_time, "tzone"), "\n")
@@ -123,7 +128,7 @@ daily_forecasts <- cash_rate %>%
     by = "meeting_date"
   ) %>%
   mutate(
-    forecast_date = as.Date(scrape_time),
+    forecast_date = coalesce(scrape_date, as.Date(scrape_time)),
     days_ahead = as.integer(meeting_date - forecast_date),
     forecast_rate = cash_rate,
     forecast_error = forecast_rate - actual_rate,
