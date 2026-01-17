@@ -12,6 +12,7 @@ ensure_packages(c(
   "tidyverse",
   "jsonlite",
   "lubridate",
+  "R6",
   "bit",
   "bit64"
 ))
