@@ -8,6 +8,7 @@ ensure_packages <- function(pkgs) {
 
 ensure_packages(c(
   "conflicted",
+  "memoise",
   "tidyverse",
   "jsonlite",
   "lubridate",
