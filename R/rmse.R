@@ -199,7 +199,7 @@ print(daily_rmse %>% select(days_ahead, n_forecasts, rmse) %>% head(20))
 # 4a. Subsample RMSE comparisons (daily forecasts)
 # =============================================
 
-compute_rmse_by_horizon <- function(data, label) {
+compute_rmse_by_horizon <- function(data, sample_label) {
   data %>%
     mutate(squared_error = forecast_error^2) %>%
     group_by(days_ahead) %>%
@@ -208,39 +208,55 @@ compute_rmse_by_horizon <- function(data, label) {
       rmse = sqrt(mean(squared_error, na.rm = TRUE)),
       .groups = "drop"
     ) %>%
-    mutate(sample = label)
+    mutate(sample = sample_label)
 }
 
-sample_definitions <- list(
-  "Full sample" = daily_forecasts,
-  "Ending in 2019" = daily_forecasts %>% filter(forecast_date <= as.Date("2019-12-31")),
-  "Starting in 2001" = daily_forecasts %>% filter(forecast_date >= as.Date("2001-01-01")),
-  "Starting in 2009" = daily_forecasts %>% filter(forecast_date >= as.Date("2009-01-01"))
+filter_daily_sample <- function(data, start_date, end_date) {
+  filtered <- data
+  if (!is.na(start_date)) {
+    filtered <- filtered %>% filter(forecast_date >= start_date)
+  }
+  if (!is.na(end_date)) {
+    filtered <- filtered %>% filter(forecast_date <= end_date)
+  }
+  filtered
+}
+
+sample_windows <- tribble(
+  ~sample, ~start_date, ~end_date,
+  "Full sample", as.Date(NA), as.Date(NA),
+  "Ending in 2019", as.Date(NA), as.Date("2019-12-31"),
+  "Starting in 2001", as.Date("2001-01-01"), as.Date(NA),
+  "Starting in 2009", as.Date("2009-01-01"), as.Date(NA)
 )
 
-rmse_subsamples <- imap_dfr(
-  sample_definitions,
-  ~ {
-    if (nrow(.x) == 0) {
+rmse_subsamples <- pmap_dfr(
+  sample_windows,
+  function(sample, start_date, end_date) {
+    sample_data <- filter_daily_sample(daily_forecasts, start_date, end_date)
+    if (nrow(sample_data) == 0) {
       return(tibble(
         days_ahead = integer(),
         n_forecasts = integer(),
         rmse = numeric(),
-        sample = .y
+        sample = sample
       ))
     }
-    compute_rmse_by_horizon(.x, .y)
+    compute_rmse_by_horizon(sample_data, sample)
   }
 )
 
-sample_summary <- imap_dfr(
-  sample_definitions,
-  ~ tibble(
-    sample = .y,
-    n_rows = nrow(.x),
-    min_date = if (nrow(.x) == 0) as.Date(NA) else min(.x$forecast_date),
-    max_date = if (nrow(.x) == 0) as.Date(NA) else max(.x$forecast_date)
-  )
+sample_summary <- pmap_dfr(
+  sample_windows,
+  function(sample, start_date, end_date) {
+    sample_data <- filter_daily_sample(daily_forecasts, start_date, end_date)
+    tibble(
+      sample = sample,
+      n_rows = nrow(sample_data),
+      min_date = if (nrow(sample_data) == 0) as.Date(NA) else min(sample_data$forecast_date),
+      max_date = if (nrow(sample_data) == 0) as.Date(NA) else max(sample_data$forecast_date)
+    )
+  }
 )
 
 cat("\n=== RMSE SUBSAMPLE SUMMARY ===\n")
