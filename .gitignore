@@ -3,3 +3,6 @@
 .RData
 .Ruserdata
 .DS_Store
+
+# Large data files
+docs/meetings/csv/all_meetings_area_data.csv
