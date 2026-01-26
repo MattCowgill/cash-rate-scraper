@@ -14,7 +14,8 @@ ensure_packages(c(
   "lubridate",
   "R6",
   "bit",
-  "bit64"
+  "bit64",
+  "gtable"
 ))
 
 library(conflicted)
