@@ -9,6 +9,8 @@ on:
     - cron: '*/5 * * * *'
     # Once a month at midnight on the 1st
     - cron: '0 0 1 * *'
+    # 11:31 AM AEST (01:31 UTC) - data and line chart only
+    - cron: '31 1 * * *'
   push:
     branches: [main, master]
   pull_request:
@@ -48,7 +50,35 @@ jobs:
         continue-on-error: true
         run: Rscript -e 'source("R/line_chart.R", echo = TRUE)'
 
+      - name: Make multi-meeting line graphs
+        if: github.event.schedule != '31 1 * * *'
+        continue-on-error: true
+        run: Rscript -e 'source("R/future_meeting_line_charts.R", echo = TRUE)'
 
+      - name: Make heatmaps graph
+        if: github.event_name != 'workflow_dispatch' && github.event.schedule != '31 1 * * *'
+        continue-on-error: true
+        run: Rscript -e 'source("R/heat_maps.R", echo = TRUE)'
+
+      - name: Make area graph
+        if: github.event_name != 'workflow_dispatch' && github.event.schedule != '31 1 * * *'
+        continue-on-error: true
+        run: Rscript -e 'source("R/daily_area_charts.R", echo = TRUE)'
+
+      - name: Make area graph
+        if: github.event_name != 'workflow_dispatch' && github.event.schedule != '31 1 * * *'
+        continue-on-error: true
+        run: Rscript -e 'source("R/area_charts.R", echo = TRUE)'
+
+      - name: Make actual vs implied graph
+        if: github.event.schedule != '31 1 * * *'
+        continue-on-error: true
+        run: Rscript -e 'source("R/actual_vs_implied.R", echo = TRUE)'
+
+      - name: Make historical heatmaps graph (monthly)
+        if: github.event_name == 'schedule' && github.event.schedule == '0 0 1 * *'
+        continue-on-error: true
+        run: Rscript -e 'source("R/heat_maps_old.R", echo = TRUE)'
 
       - name: Generate index.html from charts
         continue-on-error: true
