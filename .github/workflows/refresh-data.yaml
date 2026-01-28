@@ -50,35 +50,6 @@ jobs:
         continue-on-error: true
         run: Rscript -e 'source("R/line_chart.R", echo = TRUE)'
 
-      - name: Make multi-meeting line graphs
-        if: github.event.schedule != '31 1 * * *'
-        continue-on-error: true
-        run: Rscript -e 'source("R/future_meeting_line_charts.R", echo = TRUE)'
-
-      - name: Make heatmaps graph
-        if: github.event_name != 'workflow_dispatch' && github.event.schedule != '31 1 * * *'
-        continue-on-error: true
-        run: Rscript -e 'source("R/heat_maps.R", echo = TRUE)'
-
-      - name: Make area graph
-        if: github.event_name != 'workflow_dispatch' && github.event.schedule != '31 1 * * *'
-        continue-on-error: true
-        run: Rscript -e 'source("R/daily_area_charts.R", echo = TRUE)'
-
-      - name: Make area graph
-        if: github.event_name != 'workflow_dispatch' && github.event.schedule != '31 1 * * *'
-        continue-on-error: true
-        run: Rscript -e 'source("R/area_charts.R", echo = TRUE)'
-
-      - name: Make actual vs implied graph
-        if: github.event.schedule != '31 1 * * *'
-        continue-on-error: true
-        run: Rscript -e 'source("R/actual_vs_implied.R", echo = TRUE)'
-
-      - name: Make historical heatmaps graph (monthly)
-        if: github.event_name == 'schedule' && github.event.schedule == '0 0 1 * *'
-        continue-on-error: true
-        run: Rscript -e 'source("R/heat_maps_old.R", echo = TRUE)'
 
       - name: Generate index.html from charts
         continue-on-error: true
@@ -87,7 +58,9 @@ jobs:
       - name: Commit
         run: |
           git config --global user.name 'igross'
+          git config --global user.email 'igross@users.noreply.github.com'
           git add .
           git add docs/*.png docs/index.html
           git commit -m 'refreshing data' || echo "No changes to commit"
+          git pull --rebase origin main || true
           git push || echo "No changes to commit"
