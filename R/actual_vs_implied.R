@@ -279,29 +279,29 @@ latest_event_date <- forecast_snapshots %>%
   pull(event_time) %>%
   as.Date()
 
-  forecast_plot <- ggplot() +
-    geom_line(
-      data = plot_actual_filtered,
-      aes(x = date, y = actual_rate, text = "Actual cash rate"),
-      linewidth = 1,
-      color = "#2b2b2b"
-    ) +
-    geom_line(
-      data = forecast_paths_window,
-      aes(
-        x = expiry,
-        y = cash_rate,
-        group = scrape_time,
-        color = scrape_date,
-        text = tooltip_text
-      ),
-      alpha = 0.5
-    ) +
-    scale_color_gradientn(
-      colors = viridis(9),
-      name = "Scrape date",
-      guide = guide_colorbar(barheight = unit(5, "cm"), barwidth = unit(0.4, "cm"))
-    ) +
+# Static plot (without text aesthetic to avoid ggplot2 warnings)
+forecast_plot <- ggplot() +
+  geom_line(
+    data = plot_actual_filtered,
+    aes(x = date, y = actual_rate),
+    linewidth = 1,
+    color = "#2b2b2b"
+  ) +
+  geom_line(
+    data = forecast_paths_window,
+    aes(
+      x = expiry,
+      y = cash_rate,
+      group = scrape_time,
+      color = scrape_date
+    ),
+    alpha = 0.5
+  ) +
+  scale_color_gradientn(
+    colors = viridis(9),
+    name = "Scrape date",
+    guide = guide_colorbar(barheight = unit(5, "cm"), barwidth = unit(0.4, "cm"))
+  ) +
   scale_y_continuous(labels = number_format(accuracy = 0.05)) +
   scale_x_date(
     limits = c(x_start, x_end),
@@ -326,7 +326,58 @@ latest_event_date <- forecast_snapshots %>%
     plot.caption = element_text(margin = margin(t = 10))
   )
 
-forecast_plot_interactive <- ggplotly(forecast_plot, tooltip = "text") %>%
+# Interactive plot (with text aesthetic for plotly tooltips)
+forecast_plot_for_plotly <- ggplot() +
+  geom_line(
+    data = plot_actual_filtered,
+    aes(x = date, y = actual_rate, text = "Actual cash rate"),
+    linewidth = 1,
+    color = "#2b2b2b"
+  ) +
+  geom_line(
+    data = forecast_paths_window,
+    aes(
+      x = expiry,
+      y = cash_rate,
+      group = scrape_time,
+      color = scrape_date,
+      text = tooltip_text
+    ),
+    alpha = 0.5
+  ) +
+  scale_color_gradientn(
+    colors = viridis(9),
+    name = "Scrape date",
+    guide = guide_colorbar(barheight = unit(5, "cm"), barwidth = unit(0.4, "cm"))
+  ) +
+  scale_y_continuous(labels = number_format(accuracy = 0.05)) +
+  scale_x_date(
+    limits = c(x_start, x_end),
+    date_labels = "%b %Y",
+    date_breaks = "2 months",
+    expand = c(0.01, 0)
+  ) +
+  labs(
+    title = "Cash Rate Forecast Paths",
+    subtitle = paste0(
+      "Top 8 daily shifts up to ",
+      format(latest_event_date, "%d %B %Y")
+    ),
+    x = "Futures contract expiry",
+    y = "Implied cash rate (%)",
+    caption = "Forecasts include a mix of previous settlement and last trade data which can create a non-linearity along the forecast path"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(face = "bold", size = 15),
+    plot.caption = element_text(margin = margin(t = 10))
+  )
+
+# Suppress the "Ignoring unknown aesthetics: text" warning from ggplotly conversion
+forecast_plot_interactive <- suppressWarnings(
+  ggplotly(forecast_plot_for_plotly, tooltip = "text")
+) %>%
   layout(showlegend = FALSE,
          annotations = list(
            list(

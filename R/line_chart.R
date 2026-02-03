@@ -841,8 +841,10 @@ line_int_complete <- line_int_base +
     linewidth = 1
   )
 
-# Convert to Plotly
-interactive_line <- ggplotly(line_int_complete, tooltip = "text") %>%
+# Convert to Plotly (suppress "Ignoring unknown aesthetics: text" warning)
+interactive_line <- suppressWarnings(
+  ggplotly(line_int_complete, tooltip = "text")
+) %>%
   layout(
     hovermode = "x unified",
     legend = list(x = 1.02, y = 0.5, xanchor = "left"),
