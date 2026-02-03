@@ -529,6 +529,11 @@ start_xlim <- max(
 )
 end_xlim <- as.POSIXct(next_meeting, tz = "Australia/Melbourne") + hours(hours_tz+7)
 
+# Filter ABS releases to only include those within the chart's date range
+# This prevents "Removed rows" warnings from geom_vline
+relevant_releases <- abs_releases %>%
+  filter(datetime >= start_xlim & datetime <= end_xlim)
+
 # ==============================================================================
 # Save summary data instead of HTML
 # ==============================================================================
@@ -634,9 +639,9 @@ line <- ggplot(top3_df, aes(x = scrape_time + hours(hours_tz),
     x = "Forecast date",
     y = "Probability"
   ) +
-  # Add vertical lines for ABS data releases
+  # Add vertical lines for ABS data releases (filtered to plot range)
   geom_vline(
-    data = abs_releases,
+    data = relevant_releases,
     aes(xintercept = datetime, colour = dataset),
     linetype = "dashed",
     alpha = 0.8
@@ -728,7 +733,7 @@ line_dual <- ggplot() +
     y = "Probability"
   ) +
   geom_vline(
-    data = abs_releases,
+    data = relevant_releases,
     aes(xintercept = datetime, colour = dataset),
     linetype = "dashed",
     alpha = 0.8
@@ -803,11 +808,8 @@ line_int_base <- ggplot(top3_df, aes(x = scrape_time + hours(hours_tz),
     legend.title = element_blank()
   )
 
-# Filter releases to only show those within the chart's date range
-relevant_releases <- abs_releases %>%
-  filter(datetime >= start_xlim & datetime <= end_xlim)
-
 # Build release segment data for interactive plot
+# (relevant_releases was already filtered earlier in the script)
 # Use explicit x/xend/y/yend columns so ggplotly can reliably
 # evaluate the aesthetics during conversion to plotly.
 release_segments <- relevant_releases %>%

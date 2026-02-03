@@ -56,7 +56,8 @@ if (length(csv_files) > 0) {
         date = as.Date(date),
         cash_rate = as.double(cash_rate),
         scrape_date = as.Date(scrape_date),
-        scrape_time = lubridate::ymd_hms(scrape_time, tz = "UTC")
+        # Suppress warnings for date formats that fail to parse
+        scrape_time = suppressWarnings(lubridate::ymd_hms(scrape_time, tz = "UTC"))
       )
   }) %>%
     dplyr::filter(!is.na(scrape_date))
