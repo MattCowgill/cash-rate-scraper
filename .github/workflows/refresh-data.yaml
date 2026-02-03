@@ -50,6 +50,9 @@ jobs:
         continue-on-error: true
         run: Rscript -e 'source("R/line_chart.R", echo = TRUE)'
 
+      - name: Make forecast paths graph
+        continue-on-error: true
+        run: Rscript -e 'source("R/actual_vs_implied.R", echo = TRUE)'
 
       - name: Generate index.html from charts
         continue-on-error: true
